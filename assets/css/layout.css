@@ -1,0 +1,668 @@
+/* =========================================================================
+   Tanaw — layout: header with the world switcher, world navigation,
+   main, footer, mobile tab bar
+   ========================================================================= */
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--c-bg);
+  background: color-mix(in srgb, var(--c-bg) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  backdrop-filter: saturate(1.4) blur(14px);
+  border-bottom: 1px solid var(--c-line);
+}
+
+/* Phones and tablets: an opaque bar instead of a blur, which is costly to repaint while scrolling. */
+@media (max-width: 1023px) {
+  .site-header {
+    background: var(--c-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  min-height: var(--header-h);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: none;
+  color: var(--c-ink);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--c-ink);
+}
+
+.brand__mark {
+  width: 38px;
+  height: 38px;
+  flex: none;
+}
+
+.brand__bg { fill: #3B2FA8; transition: fill var(--t-world) var(--ease); }
+.brand__eye { fill: #FFFFFF; }
+.brand__iris { fill: #F4B42A; }
+.brand__pupil { fill: #17162B; }
+.brand__glint { fill: #FFFFFF; }
+
+/* The header eye looks toward the world you are in. */
+.brand__look {
+  transition: transform var(--t-world) var(--ease-out);
+}
+
+body[data-world="learn"] .brand__look { transform: translateX(-2.6px); }
+body[data-world="community"] .brand__look { transform: translateX(2.6px); }
+body[data-world="community"] .site-header .brand__bg { fill: #0B7270; }
+
+/* ---------- World switcher ---------- */
+.worlds {
+  display: none;
+}
+
+.worlds__link {
+  --w: var(--c-indigo);
+  --w-soft: var(--c-indigo-soft);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 46px;
+  padding: 0.35rem 1rem 0.35rem 0.7rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--r-pill);
+  color: var(--c-ink-2);
+  text-decoration: none;
+  transition: background-color var(--t-med), border-color var(--t-med), color var(--t-med);
+}
+
+.worlds__link--community {
+  --w: var(--c-teal);
+  --w-soft: var(--c-teal-soft);
+}
+
+.worlds__dot {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 3px;
+  background: var(--w);
+  box-shadow: 0 0 0 3px var(--w-soft);
+}
+
+.worlds__link--community .worlds__dot {
+  border-radius: 50%;
+}
+
+.worlds__text {
+  display: grid;
+  line-height: 1.1;
+}
+
+.worlds__fil {
+  color: var(--c-ink-3);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.worlds__label {
+  font-weight: 800;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.worlds__link:hover {
+  background: var(--w-soft);
+  color: var(--c-ink);
+}
+
+.worlds__link[aria-current] {
+  background: var(--w-soft);
+  border-color: color-mix(in srgb, var(--w) 45%, transparent);
+  color: var(--c-ink);
+}
+
+.worlds__link[aria-current] .worlds__fil {
+  color: var(--w);
+}
+
+/* On the landing, the world you are looking toward lights up here too. */
+.worlds__link.is-looked {
+  background: var(--w-soft);
+  color: var(--c-ink);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.header-stats:empty {
+  display: none;
+}
+
+/* ---------- Journey chip ---------- */
+.journey-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  padding: 0.3rem 0.8rem 0.3rem 0.45rem;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--c-line);
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.journey-chip:hover {
+  border-color: var(--c-line-strong);
+  color: var(--c-ink);
+}
+
+.journey-chip__ring {
+  width: 26px;
+  height: 26px;
+  flex: none;
+}
+
+.journey-chip__track {
+  fill: none;
+  stroke: var(--c-line);
+  stroke-width: 3;
+}
+
+.journey-chip__value {
+  fill: none;
+  stroke: var(--c-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--t-slow) var(--ease);
+}
+
+.journey-chip__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.journey-chip__item .icon {
+  width: 1.05em;
+  height: 1.05em;
+}
+
+.journey-chip__item.is-hot .icon {
+  color: var(--c-coral);
+}
+
+/* Phones: the daily ring and streak without XP (the Journey page shows it), then the logo alone,
+   then no chip at all (the tab bar has Journey), so Search, Settings, the site map and the
+   account control always fit beside the brand. */
+@media (max-width: 519px) {
+  .journey-chip__xp { display: none; }
+}
+
+@media (max-width: 429px) {
+  .brand__name { display: none; }
+}
+
+@media (max-width: 379px) {
+  .journey-chip { display: none; }
+}
+
+@media (min-width: 1024px) {
+  .worlds {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: var(--s-3);
+    padding: 4px;
+    border: 1px solid var(--c-line);
+    border-radius: var(--r-pill);
+    background: var(--c-surface-2);
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1150px) {
+  .worlds__fil { display: none; }
+  .worlds__link { padding-inline: 0.6rem 0.85rem; }
+}
+
+/* A header that does not fit, usually because of a large text size, compacts itself (shell.js). */
+.site-header[data-fit="1"] .worlds__fil,
+.site-header[data-fit="2"] .worlds__fil,
+.site-header[data-fit="3"] .worlds__fil,
+.site-header[data-fit="1"] .search-btn__label,
+.site-header[data-fit="2"] .search-btn__label,
+.site-header[data-fit="3"] .search-btn__label,
+.site-header[data-fit="1"] .search-btn__kbd,
+.site-header[data-fit="2"] .search-btn__kbd,
+.site-header[data-fit="3"] .search-btn__kbd,
+.site-header[data-fit="1"] .account-btn__label,
+.site-header[data-fit="2"] .account-btn__label,
+.site-header[data-fit="3"] .account-btn__label,
+.site-header[data-fit="1"] .journey-chip__xp,
+.site-header[data-fit="2"] .journey-chip__xp,
+.site-header[data-fit="3"] .journey-chip__xp,
+.site-header[data-fit="2"] .brand__name,
+.site-header[data-fit="3"] .brand__name,
+.site-header[data-fit="2"] .journey-chip,
+.site-header[data-fit="3"] .journey-chip,
+.site-header[data-fit="3"] .worlds {
+  display: none;
+}
+
+.site-header[data-fit="1"] .search-btn,
+.site-header[data-fit="2"] .search-btn,
+.site-header[data-fit="3"] .search-btn {
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  padding: 0;
+}
+
+.search-btn__kbd,
+.account-btn__label {
+  white-space: nowrap;
+}
+
+/* ---------- World navigation (stations of the current world) ---------- */
+.world-nav {
+  position: relative;
+  z-index: var(--z-worldnav);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-surface-2);
+}
+
+.world-nav[hidden] {
+  display: none !important;
+}
+
+/* Before the first page renders, the station bar's row is kept on pages that will show it (see index.html). */
+html[data-boot-nav]:not(.is-ready) .world-nav[hidden] {
+  display: block !important;
+  visibility: hidden;
+  min-height: 53px;
+}
+
+.world-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-accent-2));
+}
+
+.world-nav__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  min-height: 52px;
+}
+
+.world-nav__home {
+  display: none;
+  flex: none;
+  color: var(--c-ink);
+  text-decoration: none;
+  line-height: 1.1;
+}
+
+.world-nav__fil {
+  display: block;
+  color: var(--c-primary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.world-nav__label {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+.world-nav__list {
+  display: flex;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+  padding-inline: 12px 24px;
+  margin-inline: -12px;
+}
+
+.world-nav__list::-webkit-scrollbar {
+  display: none;
+}
+
+.world-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--r-pill);
+  color: var(--c-ink-2);
+  font-weight: 700;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.world-nav__link .icon {
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--c-primary);
+}
+
+.world-nav__link:hover {
+  background: var(--c-bg-alt);
+  color: var(--c-ink);
+}
+
+.world-nav__link[aria-current="page"] {
+  background: var(--c-primary);
+  color: var(--c-on-primary);
+}
+
+.world-nav__link[aria-current="page"] .icon {
+  color: currentColor;
+}
+
+@media (min-width: 1024px) {
+  .world-nav {
+    position: sticky;
+    top: var(--header-h);
+  }
+
+  .world-nav__home {
+    display: block;
+    padding-right: var(--s-4);
+    border-right: 1px solid var(--c-line);
+  }
+
+  .world-nav__list {
+    -webkit-mask-image: none;
+    mask-image: none;
+    margin-inline: 0;
+    padding-inline: 0;
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- Notices ---------- */
+.app-notices:empty {
+  display: none;
+}
+
+.app-notice {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-top: var(--s-4);
+  padding: 0.85rem 1rem;
+  border-radius: var(--r-md);
+  background: var(--c-warning-soft);
+  color: var(--c-ink);
+  border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent);
+}
+
+.app-notice p {
+  margin: 0;
+}
+
+.app-notice .icon {
+  flex: none;
+  color: var(--c-warning);
+  margin-top: 0.15rem;
+}
+
+/* ---------- Main ---------- */
+.main {
+  flex: 1 0 auto;
+}
+
+.main:focus {
+  outline: none;
+}
+
+.view {
+  min-height: 60vh;
+}
+
+.boot {
+  display: grid;
+  place-items: center;
+  gap: var(--s-3);
+  min-height: 60vh;
+  color: var(--c-ink-3);
+}
+
+.page {
+  padding-block: clamp(1.5rem, 4vw, 3rem) var(--s-7);
+}
+
+/* ---------- Footer ---------- */
+/* Until the first page has rendered, the footer stays out of the layout (no shift while loading). */
+html:not(.is-ready) .site-footer {
+  display: none;
+}
+
+.site-footer {
+  margin-top: var(--s-7);
+  padding-block: var(--s-7) var(--s-5);
+  background: var(--c-bg-alt);
+  border-top: 1px solid var(--c-line);
+  color: var(--c-ink-2);
+  font-size: 0.95rem;
+}
+
+.footer-grid {
+  display: grid;
+  gap: var(--s-6);
+  grid-template-columns: 1fr;
+}
+
+.footer-brand p {
+  max-width: 42ch;
+  margin-top: var(--s-3);
+}
+
+.footer-note {
+  display: flex;
+  gap: 0.45rem;
+  align-items: flex-start;
+  font-size: 0.88rem;
+  color: var(--c-ink-3);
+}
+
+.footer-note .icon {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+  margin-top: 0.2em;
+}
+
+/* Small capitals, not uppercase text: some screen readers read all-capital headings letter by letter. */
+.footer-title {
+  margin-bottom: var(--s-3);
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  font-weight: 800;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+  color: var(--c-ink-3);
+}
+
+.footer-nav--learn .footer-title { color: var(--c-indigo); }
+.footer-nav--community .footer-title { color: var(--c-teal); }
+
+.footer-nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.footer-nav a {
+  color: var(--c-ink-2);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-nav a:hover {
+  color: var(--c-primary);
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-5);
+  margin-top: var(--s-6);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--c-line);
+  font-size: 0.85rem;
+  color: var(--c-ink-3);
+}
+
+.footer-bottom p {
+  margin: 0;
+}
+
+@media (min-width: 560px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 900px) {
+  .footer-grid {
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+  }
+
+  .footer-brand {
+    grid-column: auto;
+  }
+}
+
+/* ---------- Mobile tab bar ---------- */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-tabbar);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--c-surface);
+  border-top: 1px solid var(--c-line);
+  box-shadow: 0 -10px 30px -18px rgba(0, 0, 0, 0.3);
+}
+
+.tabbar__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: var(--tabbar-h);
+  padding: 0.35rem 0.15rem;
+  color: var(--c-ink-3);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* Same box as the icon, so the labels do not move when shell.js swaps the icons in. */
+.tabbar__link [data-icon] {
+  width: 24px;
+  height: 24px;
+  padding: 3px 12px;
+  box-sizing: content-box;
+}
+
+.tabbar__link .icon {
+  width: 24px;
+  height: 24px;
+  padding: 3px 12px;
+  box-sizing: content-box;
+  border-radius: var(--r-pill);
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.tabbar__link:hover {
+  color: var(--c-ink);
+}
+
+.tabbar__link[aria-current="page"] {
+  color: var(--c-primary);
+}
+
+.tabbar__link[aria-current="page"] .icon {
+  background: var(--c-primary-soft);
+}
+
+.tabbar__link--learn[aria-current="page"] { color: var(--c-indigo); }
+.tabbar__link--learn[aria-current="page"] .icon { background: var(--c-indigo-soft); }
+.tabbar__link--community[aria-current="page"] { color: var(--c-teal); }
+.tabbar__link--community[aria-current="page"] .icon { background: var(--c-teal-soft); }
+
+body {
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 1024px) {
+  .tabbar { display: none; }
+  body { padding-bottom: 0; }
+}
+
+/* Focus mode (lesson and game players): hide distractions. */
+body.is-focus-mode .tabbar,
+body.is-focus-mode .site-footer {
+  display: none;
+}
+
+body.is-focus-mode {
+  padding-bottom: 0;
+}
+
+@media (max-width: 1023px) {
+  body.is-focus-mode .site-header,
+  html[data-boot-focus]:not(.is-ready) .site-header {
+    display: none;
+  }
+}

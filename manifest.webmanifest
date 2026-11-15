@@ -1,0 +1,19 @@
+{
+  "name": "Tanaw — FSL & the Filipino Deaf community",
+  "short_name": "Tanaw",
+  "description": "Two connected worlds: Awareness & Learning (FSL basics, etiquette, games, everyday scenes, vocabulary to learn with Deaf teachers) and Deaf Community (identity, history, rights). No invented signs. Works offline.",
+  "lang": "en-PH",
+  "start_url": "./index.html#/",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060719",
+  "theme_color": "#060719",
+  "categories": ["education"],
+  "icons": [
+    { "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/img/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

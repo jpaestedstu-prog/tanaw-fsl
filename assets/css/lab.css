@@ -1,0 +1,626 @@
+/* =========================================================================
+   Tanaw — the experimental 3D hand: stage, toolbar, 3D Hand Lab
+   The stage is a dark "holo-stage" in every theme, like the world heroes.
+   ========================================================================= */
+
+/* ---------- The renderer's own elements ---------- */
+.hand3d {
+  position: absolute;
+  inset: 0;
+}
+
+.hand3d__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+  border-radius: inherit;
+  transition: opacity 300ms var(--ease-out);
+}
+
+/* Until the hand is ready (it starts when it comes near the screen). */
+.hand3d__loading {
+  position: absolute;
+  inset: 0;
+  display: none;
+  place-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  color: #AEB4E2;
+  font-size: 0.9rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.hand3d.is-booting .hand3d__loading { display: grid; }
+.hand3d.is-booting .hand3d__canvas { opacity: 0; }
+
+.hand3d__spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(174, 180, 226, 0.25);
+  border-top-color: #AEB4E2;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.hand3d.is-dragging .hand3d__canvas {
+  cursor: grabbing;
+}
+
+.hand3d__canvas:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: -4px;
+}
+
+.hand3d__fallback {
+  position: absolute;
+  inset: auto 1rem 1rem;
+  margin: 0;
+  color: #E6E8FF;
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+/* ---------- Stage frame ---------- */
+.stage3d {
+  --c-focus: #FFD166;
+  position: relative;
+  aspect-ratio: 1 / 1;
+  max-height: min(78vh, 640px);
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(178, 186, 255, 0.2);
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(70% 55% at 50% 30%, rgba(108, 92, 255, 0.34), transparent 70%),
+    radial-gradient(60% 40% at 50% 104%, rgba(44, 198, 224, 0.24), transparent 70%),
+    linear-gradient(180deg, #100D3C 0%, #070620 70%, #05041A 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 40px 90px -48px rgba(80, 64, 230, 0.85);
+  color: #F1F2FF;
+}
+
+.stage3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(170, 190, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(170, 190, 255, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: radial-gradient(75% 70% at 50% 40%, #000 30%, transparent 85%);
+  mask-image: radial-gradient(75% 70% at 50% 40%, #000 30%, transparent 85%);
+  pointer-events: none;
+}
+
+.stage3d--compact {
+  aspect-ratio: 4 / 3;
+}
+
+.stage3d__hud {
+  position: absolute;
+  top: 0.85rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.stage3d__label {
+  display: grid;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.stage3d__kind {
+  color: #AEB4E8;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.stage3d__name {
+  max-width: 14ch;
+  overflow-wrap: anywhere;
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.stage3d .exp-badge {
+  color: #E9FCFF;
+  border-color: rgba(98, 230, 245, 0.55);
+  background: rgba(98, 230, 245, 0.12);
+}
+
+.stage3d .exp-badge::before {
+  background: #62E6F5;
+  box-shadow: 0 0 10px #62E6F5;
+}
+
+.stage3d__caption {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 2.2rem;
+  z-index: 2;
+  margin: 0;
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 9vw, 4.4rem);
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 0 26px rgba(98, 230, 245, 0.75);
+  pointer-events: none;
+}
+
+.stage3d__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0.6rem;
+  z-index: 2;
+  width: max-content;
+  max-width: calc(100% - 1.5rem);
+  margin: 0;
+  padding: 0.15rem 0.65rem;
+  border-radius: var(--r-pill);
+  background: rgb(6 7 25 / 0.62);
+  color: #AEB4E2;
+  font-size: 0.78rem;
+  text-align: center;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.stage3d.is-unsupported .stage3d__hint {
+  display: none;
+}
+
+/* ---------- Toolbar ---------- */
+.hand-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin-top: var(--s-3);
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-lg);
+  background: var(--glass), var(--c-surface);
+  box-shadow: var(--glass-hi);
+}
+
+.hand-tools__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.hand-tools__mirror-icon .icon {
+  transform: scaleX(-1);
+}
+
+.hand-tools .chip[aria-pressed="true"] {
+  border-color: var(--c-primary);
+  background: var(--c-primary-soft);
+  color: var(--c-ink);
+}
+
+.hand-tools__speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--c-ink-2);
+  font-size: 0.85rem;
+}
+
+.hand-tools__speed .range {
+  width: 92px;
+}
+
+.hand-tools__speed output {
+  min-width: 2.6em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Style swatches */
+.swatch {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.swatch input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.swatch__dot {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--c-surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--c-line-strong);
+  transition: box-shadow var(--t-fast), transform var(--t-fast);
+}
+
+.swatch input:checked + .swatch__dot {
+  box-shadow: 0 0 0 2.5px var(--c-primary);
+  transform: scale(1.08);
+}
+
+.swatch input:focus-visible + .swatch__dot {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 3px;
+}
+
+.swatch__dot--kayumanggi { background: #B07A57; }
+.swatch__dot--light { background: #E2B597; }
+.swatch__dot--deep { background: #6E4430; }
+.swatch__dot--polymer { background: linear-gradient(135deg, #FFFFFF, #CFC8F2); }
+.swatch__dot--hologram { background: radial-gradient(circle at 35% 35%, #CFFBFF, #3FD6E8 60%, #0B6B78); }
+
+/* ---------- Notes and the spelling strip ---------- */
+.hand-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: var(--s-3) 0 0;
+  color: var(--c-ink-2);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.hand-note .icon {
+  flex: none;
+  margin-top: 0.15em;
+  color: var(--c-cyan);
+}
+
+.spell-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: var(--s-3) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spell-strip__tile {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  height: 44px;
+  padding: 0 0.4rem;
+  border: 1.5px solid var(--glass-line);
+  border-radius: var(--r-sm);
+  background: var(--glass), var(--c-surface);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  transition: transform var(--t-fast) var(--ease), background-color var(--t-fast), border-color var(--t-fast);
+}
+
+.spell-strip__tile.is-gap {
+  border-style: dashed;
+  color: var(--c-ink-3);
+}
+
+.spell-strip__tile.is-current {
+  transform: translateY(-3px);
+  border-color: transparent;
+  background: var(--grad-btn);
+  color: var(--c-on-primary);
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--c-primary) 90%, transparent);
+}
+
+.spell-strip__space {
+  width: 14px;
+}
+
+/* ---------- 3D Hand Lab ---------- */
+.lab-grid {
+  display: grid;
+  gap: var(--s-5);
+  align-items: start;
+}
+
+/* In one column, grid items would otherwise grow to fit their content, past the screen at a large text size. */
+.lab-grid > * {
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .lab-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); }
+  .lab-stage-col { position: sticky; top: calc(var(--header-total) + 16px); }
+}
+
+.lab-panel .tabs__list {
+  flex-wrap: wrap;
+}
+
+.lab-hint {
+  margin: 0 0 var(--s-3);
+  color: var(--c-ink-2);
+}
+
+.lab-letters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 0.4rem;
+}
+
+.lab-letter {
+  min-height: 46px;
+  border: 1.5px solid var(--glass-line);
+  border-radius: var(--r-sm);
+  background: var(--glass), var(--c-surface);
+  color: var(--c-ink);
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--t-fast) var(--ease), border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.lab-letter:hover {
+  transform: translateY(-2px);
+  border-color: var(--c-primary);
+}
+
+.lab-letter[aria-pressed="true"] {
+  border-color: transparent;
+  background: var(--grad-btn);
+  color: var(--c-on-primary);
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--c-primary) 90%, transparent);
+}
+
+.lab-letter.is-gap {
+  border-style: dashed;
+  color: var(--c-ink-3);
+}
+
+.lab-letter.is-gap[aria-pressed="true"] {
+  background: var(--c-surface-2);
+  color: var(--c-ink);
+  border-color: var(--c-line-strong);
+  box-shadow: none;
+}
+
+.lab-info {
+  margin-top: var(--s-4);
+  padding: var(--s-4);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--c-primary) 6%, transparent);
+}
+
+.lab-info p {
+  margin: 0 0 0.4rem;
+}
+
+.lab-info .btn-row {
+  margin-top: var(--s-3);
+}
+
+.lab-info__title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.lab-sub {
+  margin: var(--s-4) 0 var(--s-2);
+  font-size: 1rem;
+}
+
+.lab-sub:first-child {
+  margin-top: 0;
+}
+
+.lab-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 0.5rem;
+  margin: 0 0 var(--s-3);
+  padding: 0;
+  list-style: none;
+}
+
+.lab-tile {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  height: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1.5px solid var(--glass-line);
+  border-radius: var(--r-md);
+  background: var(--glass), var(--c-surface);
+  color: var(--c-ink);
+  text-align: start;
+  cursor: pointer;
+  transition: border-color var(--t-fast), transform var(--t-fast) var(--ease);
+}
+
+.lab-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--c-primary);
+}
+
+.lab-tile[aria-pressed="true"] {
+  border-color: var(--c-primary);
+  box-shadow: inset 0 0 0 1px var(--c-primary);
+}
+
+.lab-tile__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.lab-tile__desc {
+  color: var(--c-ink-2);
+  font-size: 0.88rem;
+}
+
+.lab-gap-note {
+  min-height: 1.5em;
+  margin: var(--s-2) 0 0;
+  color: var(--c-ink-2);
+  font-size: 0.92rem;
+}
+
+.lab-about {
+  margin-top: var(--s-6);
+}
+
+.lab-about__grid {
+  display: grid;
+  gap: var(--s-4) var(--s-6);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+.lab-about h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.lab-about p {
+  margin: 0;
+  color: var(--c-ink-2);
+}
+
+/* High contrast: a plain black stage. */
+:root[data-contrast="high"] .stage3d {
+  background: #000000;
+  border-color: #FFFFFF;
+  box-shadow: none;
+}
+
+:root[data-contrast="high"] .stage3d::before {
+  display: none;
+}
+
+/* ---------- 3D in the fingerspelling tool ---------- */
+.fs-player--3d .stage3d {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.fs-drill .stage3d {
+  margin: 0;
+}
+
+/* ---------- Read the Hand (game) ---------- */
+.rh {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.rh__stage {
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+}
+
+.rh__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  max-width: 62ch;
+  margin: 0 auto;
+  color: var(--c-ink-2);
+  font-size: 0.86rem;
+}
+
+.rh__note .icon {
+  flex: none;
+  margin-top: 0.15em;
+  color: var(--c-cyan);
+}
+
+.rh__answers {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+}
+
+.rh__loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--c-ink-2);
+}
+
+/* ---------- The 3D hand inside lessons, letter pages and the mirror ---------- */
+.step-hand {
+  display: grid;
+  gap: var(--s-4);
+}
+
+@media (min-width: 760px) {
+  .step-hand { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); align-items: start; }
+}
+
+.step-hand__picker--letters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 0.35rem;
+}
+
+.step-hand__picker--chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.step-hand__picker .muted {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.step-hand__info {
+  margin-top: var(--s-3);
+  color: var(--c-ink-2);
+}
+
+.step-hand__info p {
+  margin: 0;
+}
+
+.word-3d {
+  display: grid;
+  gap: var(--s-3);
+  margin-bottom: var(--s-4);
+}
+
+.word-3d .stage3d {
+  max-width: 520px;
+}
+
+.mirror__ref .stage3d {
+  margin-bottom: var(--s-2);
+}

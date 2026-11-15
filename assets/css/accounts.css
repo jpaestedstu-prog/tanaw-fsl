@@ -1,0 +1,967 @@
+/* =========================================================================
+   Tanaw — accounts: the header's account control, the threshold pages for
+   logging in and creating an account, and the account page. Form parts here
+   are shared with the administrator's page.
+   ========================================================================= */
+
+/* ---------- Header: account control ---------- */
+.account-slot {
+  position: relative;
+  display: flex;
+}
+
+.account-slot:empty {
+  display: none;
+}
+
+.account-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 44px;
+  min-height: 40px;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-pill);
+  background: var(--glass), var(--c-surface);
+  color: var(--c-ink);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.account-btn:hover {
+  border-color: var(--c-primary);
+  box-shadow: var(--glow);
+  color: var(--c-ink);
+}
+
+.account-btn .icon {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.account-btn--user {
+  min-width: 44px;
+  padding: 0.25rem;
+}
+
+.account-btn__initial {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--grad-btn);
+  color: var(--c-on-primary);
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (max-width: 1023px) {
+  .account-btn__label { display: none; }
+  .account-btn { width: 44px; height: 44px; padding: 0; }
+}
+
+/* The header compacts itself when its contents do not fit (shell.js, layout.css). */
+.site-header[data-fit="1"] .account-btn,
+.site-header[data-fit="2"] .account-btn,
+.site-header[data-fit="3"] .account-btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 70;
+  width: min(300px, calc(100vw - 24px));
+  padding: 0.5rem;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  box-shadow: var(--sh-3);
+}
+
+.account-menu__who {
+  padding: 0.5rem 0.7rem 0.7rem;
+  border-bottom: 1px solid var(--c-line);
+  margin-bottom: 0.35rem;
+}
+
+.account-menu__name {
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-menu__email {
+  margin: 0;
+  overflow: hidden;
+  color: var(--c-ink-3);
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-menu__list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.4rem 0.7rem;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--c-ink);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-menu__item:hover {
+  background: var(--c-primary-soft);
+  color: var(--c-ink);
+}
+
+.account-menu__item .icon {
+  flex: none;
+  color: var(--c-primary);
+}
+
+.account-menu__note {
+  margin: 0.35rem 0.7rem 0.4rem;
+  color: var(--c-ink-3);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Phones: the header's account control sits among several others, so its menu spans the screen. */
+@media (max-width: 599px) {
+  .account-menu {
+    position: fixed;
+    top: calc(var(--header-h) + 4px);
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+}
+
+/* ---------- Site notice from the administrator ---------- */
+.app-notice--site {
+  align-items: center;
+}
+
+.app-notice--site.is-important {
+  background: var(--c-danger-soft);
+  border-color: color-mix(in srgb, var(--c-danger) 40%, transparent);
+}
+
+.app-notice--site.is-important .icon { color: var(--c-danger); }
+
+.app-notice--site p { flex: 1; }
+
+/* The list in the site map also holds Log out, a button that must match the links beside it. */
+.menu-list__link--button {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* The worlds run right down to the footer on these pages. */
+body[data-view="login"] .site-footer,
+body[data-view="register"] .site-footer {
+  margin-top: 0;
+}
+
+/* ---------- The threshold: both worlds behind a form on the seam ---------- */
+.gate {
+  --c-focus-world: #FFD66E;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  overflow: clip;
+  min-height: calc(100svh - var(--header-h) - var(--tabbar-h));
+  padding-block: clamp(3.75rem, 8vh, 5rem) var(--s-7);
+}
+
+.gate__world {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+  width: 50%;
+  overflow: hidden;
+}
+
+.gate__world::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.gate__world--learn {
+  left: 0;
+  background:
+    radial-gradient(120% 90% at 85% 0%, rgba(122, 104, 255, 0.35), transparent 60%),
+    linear-gradient(165deg, #261B8E 0%, #160F57 55%, #0B0730 100%);
+}
+
+.gate__world--learn::after {
+  background: linear-gradient(to top, rgba(8, 5, 40, 0.86), rgba(8, 5, 40, 0.5));
+}
+
+.gate__world--community {
+  right: 0;
+  background:
+    radial-gradient(120% 90% at 15% 0%, rgba(79, 209, 197, 0.28), transparent 60%),
+    linear-gradient(195deg, #0C7370 0%, #064A48 55%, #022322 100%);
+}
+
+.gate__world--community::after {
+  background: linear-gradient(to top, rgba(1, 26, 25, 0.88), rgba(1, 26, 25, 0.56));
+}
+
+.gate__seam {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  z-index: -1;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255, 246, 227, 0.4), #FFD66E 40%, rgba(255, 246, 227, 0.4));
+}
+
+.gate__grid {
+  display: grid;
+  gap: var(--s-6);
+  align-items: start;
+  justify-items: center;
+  grid-template-areas: "card" "learn" "community";
+}
+
+.gate__card {
+  grid-area: card;
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+  padding: 3.1rem clamp(1.1rem, 4vw, 1.75rem) clamp(1.1rem, 4vw, 1.75rem);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-xl);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  box-shadow: 0 34px 80px -32px rgba(0, 0, 0, 0.85);
+}
+
+.gate__eye {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -50%);
+}
+
+.gate-eye {
+  width: 84px;
+  height: 84px;
+  max-width: none;
+  overflow: visible;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.4));
+}
+
+.gate-eye .eye__halo { fill: #FFF6E3; stroke: #F2BE4A; stroke-width: 3; }
+.gate-eye .eye__white { fill: #FFFFFF; }
+.gate-eye .eye__iris { fill: #F4B42A; }
+.gate-eye .eye__pupil { fill: #17162B; }
+.gate-eye .eye__glint { fill: #FFFFFF; }
+.gate-eye .eye__line { fill: none; stroke: #17162B; stroke-width: 3; }
+
+.gate-eye .eye__lid {
+  transition: transform 200ms var(--ease-out);
+}
+
+/* The eye looks away while a hidden password is typed, and opens wide when it is shown. */
+.gate-eye.is-shut .eye__lid { transform: scaleY(0.06); }
+.gate-eye.is-wide .eye__lid { transform: scale(1.1, 1.14); }
+
+:root[data-motion="full"] .gate-eye.is-wrong {
+  animation: eye-no 420ms var(--ease);
+}
+
+@keyframes eye-no {
+  20% { transform: translateX(-6px); }
+  45% { transform: translateX(5px); }
+  70% { transform: translateX(-3px); }
+}
+
+.gate__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: var(--s-4);
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--c-bg-alt);
+}
+
+.gate__tab {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--r-pill);
+  color: var(--c-ink-2);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.gate__tab:hover { color: var(--c-ink); }
+
+.gate__tab[aria-current="page"] {
+  background: var(--c-surface);
+  color: var(--c-ink);
+  box-shadow: inset 0 0 0 1.5px var(--c-primary), var(--sh-1);
+}
+
+.gate__title {
+  margin: 0 0 var(--s-3);
+  font-size: clamp(1.6rem, 1.4rem + 1vw, 2.05rem);
+  text-align: center;
+}
+
+.gate__demo,
+.gate__info,
+.gate__problem {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  margin: 0 0 var(--s-4);
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--r-md);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.gate__demo {
+  background: var(--c-warning-soft);
+  color: var(--c-ink);
+  border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent);
+}
+
+.gate__demo .icon { color: var(--c-warning); }
+
+.gate__info {
+  background: var(--c-primary-soft);
+  color: var(--c-ink);
+}
+
+.gate__problem {
+  background: var(--c-danger-soft);
+  color: var(--c-ink);
+}
+
+.gate__demo .icon,
+.gate__info .icon,
+.gate__problem .icon,
+.gate__good > .icon {
+  flex: none;
+  margin-top: 0.1em;
+}
+
+.gate__good {
+  display: flex;
+  gap: 0.6rem;
+  margin: 0 0 var(--s-4);
+  padding: 0.7rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--c-success) 45%, transparent);
+  border-radius: var(--r-md);
+  background: var(--c-success-soft);
+  color: var(--c-ink);
+  font-size: 0.92rem;
+}
+
+.gate__good > .icon { color: var(--c-success); }
+.gate__good p { margin: 0 0 0.25rem; }
+
+.gate__form {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.gate__forgot {
+  margin-top: var(--s-4);
+  font-size: 0.92rem;
+}
+
+.gate__forgot summary {
+  width: fit-content;
+  color: var(--c-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.gate__forgot p {
+  margin: 0.4rem 0 0;
+  color: var(--c-ink-2);
+}
+
+.gate__switch {
+  margin: var(--s-4) 0 0;
+  color: var(--c-ink-2);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.gate__welcome {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+  padding-block: var(--s-3);
+  text-align: center;
+}
+
+.gate__welcome p { margin: 0; color: var(--c-ink-2); }
+
+.gate__welcome-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.gate__welcome-title:focus { outline: none; }
+
+/* After creating an account: choose a world. */
+.gate__worlds {
+  display: grid;
+  width: 100%;
+  gap: var(--s-2);
+}
+
+.gate__worldbtn {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--r-md);
+  color: #FFF6E3;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.gate__worldbtn:hover {
+  color: #FFF6E3;
+  transform: translateY(-2px);
+}
+
+.gate__worldbtn:focus-visible {
+  outline-offset: 3px;
+}
+
+.gate__worldbtn .icon { grid-column: 2; grid-row: 1 / span 2; }
+.gate__worldbtn--learn { background: linear-gradient(120deg, #2A1F8F, #160F57); }
+.gate__worldbtn--community { background: linear-gradient(120deg, #0C7370, #064A48); }
+
+.gate__worldfil {
+  color: #FFD66E;
+  font-size: 0.8rem;
+}
+
+.gate__worldbtn--community .gate__worldfil { color: #FFB4A8; }
+
+/* Beside the card, on the dark worlds (fixed colors in every theme). Each panel carries its
+   own dark backing, so its words stay readable whatever the materials behind it are doing. */
+.gate__side {
+  width: 100%;
+  max-width: 28rem;
+  padding: var(--s-4) var(--s-5);
+  border: 1px solid rgba(255, 246, 227, 0.16);
+  border-radius: var(--r-lg);
+  color: #FFF6E3;
+}
+
+.gate__side--learn { grid-area: learn; background: rgba(14, 9, 58, 0.93); }
+.gate__side--community { grid-area: community; background: rgba(2, 34, 33, 0.93); }
+
+.gate__side-title {
+  margin-bottom: var(--s-3);
+  color: #FFF6E3;
+  font-size: 1.2rem;
+}
+
+.gate__list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.gate__list li {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+}
+
+.gate__list .icon {
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  margin-top: 0.14em;
+  color: #FFD66E;
+}
+
+.gate__side--community .gate__list .icon { color: #FFB4A8; }
+
+.gate__aside-note {
+  margin: var(--s-3) 0 0;
+  color: rgba(255, 246, 227, 0.88);
+  font-size: 0.92rem;
+}
+
+/* Wide screens: the card on the seam, a world's worth of words either side. */
+@media (min-width: 1120px) {
+  .gate__grid {
+    grid-template-areas: "learn card community";
+    grid-template-columns: minmax(0, 1fr) minmax(0, 28rem) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: center;
+  }
+
+  .gate__side {
+    max-width: 21rem;
+  }
+
+  .gate__side--learn { justify-self: start; }
+  .gate__side--community { justify-self: end; }
+}
+
+/* Phones: the worlds stack behind the card, top and bottom. */
+@media (max-width: 759px) {
+  .gate__world {
+    width: 100%;
+    height: 50%;
+    left: 0;
+    right: 0;
+  }
+
+  .gate__world--learn { top: 0; bottom: auto; }
+  .gate__world--community { top: auto; bottom: 0; }
+
+  .gate__seam { display: none; }
+}
+
+/* ---------- Form parts (shared with the administrator's page) ---------- */
+.field__optional {
+  color: var(--c-ink-3);
+  font-weight: 400;
+}
+
+.field__hint + .field__control {
+  margin-top: 0.35rem;
+}
+
+.field > .field__hint {
+  margin: 0;
+}
+
+.field__control {
+  position: relative;
+}
+
+.field__control:has(.field__reveal) .input {
+  padding-right: 3.1rem;
+}
+
+.field__reveal {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: calc(100% - 2px);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: none;
+  color: var(--c-ink-3);
+  cursor: pointer;
+}
+
+.field__reveal:hover {
+  color: var(--c-ink);
+}
+
+/* A line through the eye while the password is hidden; the eye is open once it shows. */
+.field__reveal::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  box-shadow: 0 0 0 1.5px var(--c-surface);
+  transform: translate(-50%, -50%) rotate(-40deg);
+}
+
+.field__reveal.is-open {
+  color: var(--c-primary);
+}
+
+.field__reveal.is-open::after {
+  display: none;
+}
+
+.field__caps {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  color: var(--c-warning);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.field__caps .icon { width: 1.05em; height: 1.05em; }
+
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  color: var(--c-danger);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.field__error .icon {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  margin-top: 0.14em;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--c-danger);
+  box-shadow: inset 0 0 0 1px var(--c-danger);
+}
+
+.error-summary {
+  padding: 0.75rem 0.9rem;
+  border: 2px solid var(--c-danger);
+  border-radius: var(--r-md);
+  background: var(--c-danger-soft);
+  color: var(--c-ink);
+}
+
+.error-summary:focus { outline: none; }
+
+.error-summary:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+.error-summary__title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+.error-summary__title .icon {
+  flex: none;
+  margin-top: 0.14em;
+  color: var(--c-danger);
+}
+
+.error-summary__list {
+  margin: 0.35rem 0 0;
+  padding-left: 1.75rem;
+  font-size: 0.92rem;
+}
+
+.error-summary__list a {
+  display: inline-block;
+  padding-block: 3px;
+  color: var(--c-ink);
+}
+
+.strength {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-top: 0.55rem;
+}
+
+.strength__bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--c-line);
+  transition: background-color var(--t-med);
+}
+
+.strength[data-score="0"] .strength__bar:first-child { background: var(--c-danger); }
+.strength[data-score="1"] .strength__bar:nth-child(-n+1) { background: var(--c-danger); }
+.strength[data-score="2"] .strength__bar:nth-child(-n+2) { background: var(--c-warning); }
+.strength[data-score="3"] .strength__bar:nth-child(-n+3) { background: var(--c-success); }
+.strength[data-score="4"] .strength__bar:nth-child(-n+4) { background: var(--c-success); }
+
+.strength__text {
+  min-height: 1.3em;
+  margin: 0.25rem 0 0;
+  color: var(--c-ink-2);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.rules {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--c-ink-3);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.rules li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.rules .icon {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  margin-top: 0.14em;
+  opacity: 0.35;
+}
+
+.rules li.is-met { color: var(--c-ink); }
+
+.rules li.is-met .icon {
+  color: var(--c-success);
+  opacity: 1;
+}
+
+.check__label {
+  display: grid;
+  font-weight: 700;
+}
+
+.check__hint {
+  color: var(--c-ink-3);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.spinner--sm {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+
+/* ---------- Your account ---------- */
+.account {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.account__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.account__avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--grad-btn);
+  color: var(--c-on-primary);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.account__who {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.account__name {
+  margin: 0 0 0.15rem;
+  font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.2rem);
+  overflow-wrap: anywhere;
+}
+
+.account__meta {
+  margin: 0;
+  color: var(--c-ink-2);
+  overflow-wrap: anywhere;
+}
+
+.account__role {
+  font-weight: 700;
+}
+
+.account__role--admin {
+  color: var(--c-warning);
+}
+
+.account__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.account__demo,
+.account__must {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--r-md);
+  font-size: 0.92rem;
+}
+
+.account__demo {
+  border: 1px solid color-mix(in srgb, var(--c-warning) 35%, transparent);
+  background: var(--c-warning-soft);
+}
+
+.account__must {
+  border: 2px solid var(--c-danger);
+  background: var(--c-danger-soft);
+}
+
+.account__demo .icon,
+.account__must .icon {
+  flex: none;
+  margin-top: 0.12em;
+}
+
+.account__grid {
+  display: grid;
+  gap: var(--s-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  align-items: start;
+}
+
+.account__card form {
+  display: grid;
+  gap: var(--s-4);
+  justify-items: start;
+}
+
+.account__card form > .field,
+.account__card form > .error-summary {
+  width: 100%;
+}
+
+.account__title {
+  margin-bottom: var(--s-3);
+  font-size: 1.25rem;
+}
+
+.account__subtitle {
+  margin: var(--s-5) 0 0.25rem;
+  font-size: 1.05rem;
+}
+
+.account__dialog-actions {
+  justify-content: flex-end;
+  margin-top: var(--s-4);
+}
+
+[data-delete-form] .field {
+  margin-top: var(--s-3);
+}
+
+:root[data-contrast="high"] .gate__world,
+:root[data-contrast="high"] .gate__seam {
+  display: none;
+}
+
+:root[data-contrast="high"] .gate {
+  background: var(--c-bg);
+}
+
+:root[data-contrast="high"] .gate__side {
+  border-color: var(--c-ink);
+  background: var(--c-surface);
+}
+
+:root[data-contrast="high"] .gate__side,
+:root[data-contrast="high"] .gate__side-title,
+:root[data-contrast="high"] .gate__aside-note,
+:root[data-contrast="high"] .gate__list .icon {
+  color: var(--c-ink);
+}
+
+:root[data-contrast="high"] .gate__worldbtn {
+  background: var(--c-primary);
+  color: var(--c-on-primary);
+}
+
+:root[data-contrast="high"] .gate__worldfil {
+  color: inherit;
+}
+
+@media (forced-colors: active) {
+  .gate__world { display: none; }
+  .gate__side,
+  .gate__side-title,
+  .gate__aside-note { color: CanvasText; background: Canvas; }
+}

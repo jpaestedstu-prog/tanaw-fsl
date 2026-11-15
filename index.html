@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tanaw — Filipino Sign Language &amp; the Filipino Deaf community</title>
+  <meta name="description" content="Tanaw is a free, offline-ready website with two connected worlds: Awareness &amp; Learning (FSL basics, Deaf etiquette, games, everyday scenes and vocabulary to learn with Deaf teachers) and Deaf Community (identity, history, rights and Deaf-led organizations). No invented signs.">
+  <meta name="theme-color" content="#060719">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/img/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <script>
+    /* Apply saved display settings before first paint (no flash of the wrong theme or unwanted motion). */
+    (function () {
+      try {
+        /* A logged-in account has its own display settings. */
+        var who = JSON.parse(localStorage.getItem('tanaw.session.v1') || 'null');
+        var key = who && who.uid && who.expires > Date.now() ? 'tanaw.state.v1.u.' + who.uid : 'tanaw.state.v1';
+        var s = (JSON.parse(localStorage.getItem(key) || '{}') || {}).settings || {};
+        var d = document.documentElement;
+        var mq = function (q) { return !!(window.matchMedia && window.matchMedia(q).matches); };
+        var t = s.theme || 'dark';
+        var dark = t === 'dark' || (t === 'system' && mq('(prefers-color-scheme: dark)'));
+        d.setAttribute('data-theme', dark ? 'dark' : 'light');
+        if (s.contrast === 'high') d.setAttribute('data-contrast', 'high');
+        if (s.spacing === 'relaxed') d.setAttribute('data-spacing', 'relaxed');
+        d.setAttribute('data-motion', s.motion === 'reduce' || (s.motion !== 'full' && mq('(prefers-reduced-motion: reduce)')) ? 'reduce' : 'full');
+        if (s.textScale) d.style.setProperty('--text-scale', String(Math.min(1.5, Math.max(0.9, Number(s.textScale) || 1))));
+      } catch (e) { /* storage unavailable: defaults apply */ }
+      /* Pages that show the station bar keep its row from the first paint (no layout shift). Lessons and games are full screen. */
+      if (/^#\/(learn(\/path)?|lab|play|scenes(\/[\w-]+)?|library|sign\/[\w-]+|practice(\/[\w-]+)?|bridge|community(\/[\w-]+)?|community\/stories\/[\w-]+)$/.test((location.hash || '').split('?')[0])) {
+        document.documentElement.setAttribute('data-boot-nav', '');
+      } else if (/^#\/(learn\/(?!path$)[\w-]+|play\/[\w-]+)$/.test((location.hash || '').split('?')[0])) {
+        document.documentElement.setAttribute('data-boot-focus', '');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/worlds.css">
+  <link rel="stylesheet" href="assets/css/horizon.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <link rel="stylesheet" href="assets/css/tools.css">
+  <link rel="stylesheet" href="assets/css/community.css">
+  <link rel="stylesheet" href="assets/css/play.css">
+  <link rel="stylesheet" href="assets/css/lab.css">
+  <link rel="stylesheet" href="assets/css/futura.css">
+  <link rel="stylesheet" href="assets/css/accounts.css">
+  <noscript><style>.boot { display: none; }</style></noscript>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="#/" aria-label="Tanaw — start: choose a world">
+        <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <rect class="brand__bg" width="48" height="48" rx="14"/>
+          <path class="brand__eye" d="M7.5 24c4.7-7.2 10.2-10.8 16.5-10.8S35.8 16.8 40.5 24C35.8 31.2 30.3 34.8 24 34.8S12.2 31.2 7.5 24z"/>
+          <g class="brand__look">
+            <circle class="brand__iris" cx="24" cy="24" r="6.8"/>
+            <circle class="brand__pupil" cx="24" cy="24" r="2.9"/>
+            <circle class="brand__glint" cx="25.9" cy="22.1" r="1.15"/>
+          </g>
+        </svg>
+        <span class="brand__name">Tanaw</span>
+      </a>
+
+      <nav class="worlds" aria-label="Worlds">
+        <a class="worlds__link worlds__link--learn" data-world-link="learn" href="#/learn"><span class="worlds__dot" aria-hidden="true"></span><span class="worlds__text"><span class="worlds__fil" lang="fil">Matuto</span><span class="worlds__label">Awareness &amp; Learning</span></span></a>
+        <a class="worlds__link worlds__link--community" data-world-link="community" href="#/community"><span class="worlds__dot" aria-hidden="true"></span><span class="worlds__text"><span class="worlds__fil" lang="fil">Pamayanan</span><span class="worlds__label">Deaf Community</span></span></a>
+      </nav>
+
+      <div class="header-actions">
+        <div id="header-stats" class="header-stats"></div>
+        <button type="button" class="search-btn" data-open-palette aria-label="Search Tanaw (Ctrl+K)" aria-keyshortcuts="Control+K Meta+K"><span data-icon="search"></span><span class="search-btn__label" aria-hidden="true">Search</span><kbd class="search-btn__kbd" aria-hidden="true">Ctrl K</kbd></button>
+        <button type="button" class="icon-btn" data-open-settings-global aria-label="Display and accessibility settings"><span data-icon="sliders"></span></button>
+        <button type="button" class="icon-btn header-menu" data-open-menu aria-label="Explore: site map"><span data-icon="map"></span></button>
+        <div id="account-slot" class="account-slot"></div>
+      </div>
+    </div>
+  </header>
+  <nav id="world-nav" class="world-nav" hidden></nav>
+
+  <div id="app-notices" class="container app-notices"></div>
+
+  <main id="main" class="main" tabindex="-1">
+    <div id="view" class="view">
+      <div class="boot" role="status">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Loading Tanaw…</p>
+      </div>
+    </div>
+    <noscript>
+      <div class="container page">
+        <h1>Tanaw needs JavaScript</h1>
+        <p>Tanaw is an interactive website. Please enable JavaScript in your browser to use it. Everything runs on your device — nothing is sent to a server.</p>
+      </div>
+    </noscript>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="#/" aria-label="Tanaw — start">
+          <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <rect class="brand__bg" width="48" height="48" rx="14"/>
+            <path class="brand__eye" d="M7.5 24c4.7-7.2 10.2-10.8 16.5-10.8S35.8 16.8 40.5 24C35.8 31.2 30.3 34.8 24 34.8S12.2 31.2 7.5 24z"/>
+            <circle class="brand__iris" cx="24" cy="24" r="6.8"/>
+            <circle class="brand__pupil" cx="24" cy="24" r="2.9"/>
+            <circle class="brand__glint" cx="25.9" cy="22.1" r="1.15"/>
+          </svg>
+          <span class="brand__name">Tanaw</span>
+        </a>
+        <p>Two ways of seeing, one horizon: learning about Filipino Sign Language, and meeting the community it belongs to. Built to support, never replace, learning from Deaf people.</p>
+        <p class="footer-note"><span data-icon="lock"></span><span>Runs in your browser, with no tracking. Accounts are an optional demonstration, kept only in this browser.</span></p>
+      </div>
+      <nav class="footer-nav footer-nav--learn" aria-label="Awareness and Learning">
+        <h2 class="footer-title">Awareness &amp; Learning</h2>
+        <ul>
+          <li><a href="#/learn">Overview</a></li>
+          <li><a href="#/learn/path">Learning path</a></li>
+          <li><a href="#/play">Games</a></li>
+          <li><a href="#/scenes">Everyday scenes</a></li>
+          <li><a href="#/library">Vocabulary</a></li>
+          <li data-feature="hand3d"><a href="#/lab">3D Hand Lab</a></li>
+          <li><a href="#/practice">Practice</a></li>
+          <li><a href="#/bridge">Conversation Bridge</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-nav footer-nav--community" aria-label="Deaf Community">
+        <h2 class="footer-title">Deaf Community</h2>
+        <ul>
+          <li><a href="#/community">Overview</a></li>
+          <li><a href="#/community/identity">Identity &amp; culture</a></li>
+          <li data-feature="stories"><a href="#/community/stories">Stories</a></li>
+          <li><a href="#/community/history">History</a></li>
+          <li><a href="#/community/rights">Rights</a></li>
+          <li><a href="#/community/calendar">Calendar</a></li>
+          <li><a href="#/community/connect">Connect &amp; sources</a></li>
+        </ul>
+      </nav>
+      <nav class="footer-nav" aria-label="About Tanaw">
+        <h2 class="footer-title">Tanaw</h2>
+        <ul>
+          <li><a href="#/journey">Your journey &amp; data</a></li>
+          <li><a href="#/login" data-account-link>Log in or create an account</a></li>
+          <li><a href="#/about">About, status &amp; roadmap</a></li>
+          <li><a href="#/studio" data-studio-link>Class vocabulary (for teachers)</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; <span id="footer-year">2026</span> Tanaw · Student innovation project · Not affiliated with, or endorsed by, the organizations referenced. Content written from published sources; not reviewed by Deaf organizations. The 3D hand is an experimental prototype.</p>
+      <p>FSL is the national sign language of the Filipino Deaf — Republic Act No. 11106.</p>
+    </div>
+  </footer>
+
+  <nav class="tabbar" aria-label="Primary (mobile)">
+    <a class="tabbar__link" data-nav="home" href="#/"><span data-icon="eye"></span><span>Start</span></a>
+    <a class="tabbar__link tabbar__link--learn" data-nav="learn" href="#/learn"><span data-icon="window"></span><span>Learning</span></a>
+    <a class="tabbar__link tabbar__link--community" data-nav="community" href="#/community"><span data-icon="weave"></span><span>Community</span></a>
+    <a class="tabbar__link" data-nav="bridge" href="#/bridge"><span data-icon="bridge"></span><span>Bridge</span></a>
+    <a class="tabbar__link" data-nav="progress" href="#/journey"><span data-icon="sparkles"></span><span>Journey</span></a>
+  </nav>
+
+  <div id="live-region" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <!-- Classic scripts (not ES modules) so Tanaw also works when opened directly from a folder (file://).
+       Order matters. Only the shell and the landing page load up front; the router loads other pages on demand. -->
+  <script src="assets/js/core/util.js" defer></script>
+  <script src="assets/js/core/config.js" defer></script>
+  <script src="assets/js/core/icons.js" defer></script>
+  <script src="assets/js/data/signs.js" defer></script>
+  <script src="assets/js/data/lessons.js" defer></script>
+  <script src="assets/js/data/concepts.js" defer></script>
+  <script src="assets/js/data/culture.js" defer></script>
+  <script src="assets/js/data/phrases.js" defer></script>
+  <script src="assets/js/data/media-manifest.js" defer></script>
+  <script src="assets/js/data/scenes.js" defer></script>
+  <script src="assets/js/data/games.js" defer></script>
+  <script src="assets/js/core/store.js" defer></script>
+  <script src="assets/js/core/settings.js" defer></script>
+  <script src="assets/js/core/auth.js" defer></script>
+  <script src="assets/js/core/backend-demo.js" defer></script>
+  <script src="assets/js/core/ui.js" defer></script>
+  <script src="assets/js/core/media.js" defer></script>
+  <script src="assets/js/core/progress.js" defer></script>
+  <script src="assets/js/core/srs.js" defer></script>
+  <script src="assets/js/core/router.js" defer></script>
+  <script src="assets/js/core/shell.js" defer></script>
+  <script src="assets/js/components/art.js" defer></script>
+  <script src="assets/js/components/widgets.js" defer></script>
+  <script src="assets/js/components/sign-ui.js" defer></script>
+  <script src="assets/js/components/steps.js" defer></script>
+  <script src="assets/js/components/runner.js" defer></script>
+  <script src="assets/js/components/fx.js" defer></script>
+  <script src="assets/js/components/horizon.js" defer></script>
+  <script src="assets/js/components/palette.js" defer></script>
+  <script src="assets/js/views/home.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</body>
+</html>

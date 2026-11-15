@@ -1,0 +1,7 @@
+# Test dependencies: run `npm install` inside tests/ (see tests/README.md)
+node_modules/
+
+# Operating-system files
+Thumbs.db
+desktop.ini
+.DS_Store

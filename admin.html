@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-console="paper">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tanawan · Tanaw administrator console</title>
+  <meta name="description" content="Tanawan, the lookout: the administrator console for the Tanaw website. A frontend demonstration that works only in this browser.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#15132E">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/img/icon-192.png" sizes="192x192" type="image/png">
+  <!--
+    A separate page is a way of organizing the interface. It is NOT access control:
+    anyone can open this file, and every check on it runs in the visitor's browser.
+    Real protection must be enforced by a server: see docs/backend-integration.md.
+  -->
+  <script>
+    /* Apply display settings before first paint. The console has its own paper or night look;
+       contrast, text size, spacing and motion follow the person's choices on the main site. */
+    (function () {
+      try {
+        var d = document.documentElement;
+        var who = JSON.parse(localStorage.getItem('tanaw.session.v1') || 'null');
+        var key = who && who.uid && who.expires > Date.now() ? 'tanaw.state.v1.u.' + who.uid : 'tanaw.state.v1';
+        var s = (JSON.parse(localStorage.getItem(key) || '{}') || {}).settings || {};
+        var mq = function (q) { return !!(window.matchMedia && window.matchMedia(q).matches); };
+        var look = localStorage.getItem('tanaw.console.look') === 'night' ? 'night' : 'paper';
+        d.setAttribute('data-console', look);
+        d.setAttribute('data-theme', look === 'night' ? 'dark' : 'light');
+        if (s.contrast === 'high') d.setAttribute('data-contrast', 'high');
+        if (s.spacing === 'relaxed') d.setAttribute('data-spacing', 'relaxed');
+        d.setAttribute('data-motion', s.motion === 'reduce' || (s.motion !== 'full' && mq('(prefers-reduced-motion: reduce)')) ? 'reduce' : 'full');
+        if (s.textScale) d.style.setProperty('--text-scale', String(Math.min(1.5, Math.max(0.9, Number(s.textScale) || 1))));
+      } catch (e) { /* storage unavailable: defaults apply */ }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/accounts.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <noscript><style>.console-boot { display: none; }</style></noscript>
+</head>
+<body class="console-body">
+  <a class="skip-link" href="#console-main" data-console-skip>Skip to main content</a>
+
+  <div id="console-root">
+    <div class="console-boot" role="status"><span class="spinner" aria-hidden="true"></span><p>Loading the console…</p></div>
+  </div>
+
+  <noscript>
+    <div class="console-noscript">
+      <h1>Tanawan needs JavaScript</h1>
+      <p>This console runs entirely in your browser. Please enable JavaScript to use it.</p>
+    </div>
+  </noscript>
+
+  <div id="live-region" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <!-- Classic scripts, so this page also works when opened straight from a folder (file://). -->
+  <script src="assets/js/core/util.js" defer></script>
+  <script src="assets/js/core/config.js" defer></script>
+  <script src="assets/js/core/icons.js" defer></script>
+  <script src="assets/js/data/signs.js" defer></script>
+  <script src="assets/js/data/lessons.js" defer></script>
+  <script src="assets/js/data/culture.js" defer></script>
+  <script src="assets/js/data/scenes.js" defer></script>
+  <script src="assets/js/data/games.js" defer></script>
+  <script src="assets/js/data/stories.js" defer></script>
+  <script src="assets/js/data/hands.js" defer></script>
+  <script src="assets/js/core/store.js" defer></script>
+  <script src="assets/js/core/settings.js" defer></script>
+  <script src="assets/js/core/auth.js" defer></script>
+  <script src="assets/js/core/backend-demo.js" defer></script>
+  <script src="assets/js/core/ui.js" defer></script>
+  <script src="assets/js/components/fx.js" defer></script>
+  <script src="assets/js/components/forms.js" defer></script>
+  <script src="assets/js/admin/demo-admin.js" defer></script>
+  <script src="assets/js/admin/console.js" defer></script>
+  <script src="assets/js/admin/overview.js" defer></script>
+  <script src="assets/js/admin/people.js" defer></script>
+  <script src="assets/js/admin/review.js" defer></script>
+  <script src="assets/js/admin/activity.js" defer></script>
+  <script src="assets/js/admin/site.js" defer></script>
+  <script src="assets/js/admin/system.js" defer></script>
+  <script src="assets/js/admin/boot.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+/* =========================================================================
+   Tanaw — design tokens
+
+   "Night horizon": a dark-first, luminous interface. Two worlds, one palette
+   drawn from the Philippines:
+   - Awareness & Learning (capiz light): electric indigo, cyan light, sun gold
+   - Deaf Community (banig weave): sea aqua and gumamela coral
+   Components read the --c-primary family; inside [data-world="community"] it
+   becomes teal, so every component re-tints with the world. Text colors meet
+   WCAG AA on their intended backgrounds (checked with axe-core).
+   ========================================================================= */
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../fonts/space-grotesk-latin.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* The landing's world titles only: one weight, basic Latin letters (about 6 KB). */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("../fonts/bricolage-grotesque-display.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../fonts/atkinson-hyperlegible-next-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../fonts/atkinson-hyperlegible-next-italic-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  /* Typography */
+  --font-body: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Space Grotesk", "Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
+  --font-world: "Bricolage Grotesque", var(--font-display);
+  --font-mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --text-scale: 1;
+
+  /* Surfaces & ink (light: "Araw", cool daylight) */
+  --c-bg: #F3F5FD;
+  --c-bg-alt: #E8EBFA;
+  --c-surface: #FFFFFF;
+  --c-surface-2: #F7F8FE;
+  --c-ink: #0D1033;
+  --c-ink-2: #383D66;
+  --c-ink-3: #525886;
+  --c-line: #DCE0F3;
+  --c-line-strong: #B5BBDB;
+
+  /* Awareness & Learning: indigo + cyan + gold */
+  --c-indigo: #4634D6;
+  --c-indigo-strong: #2E21A6;
+  --c-indigo-soft: #ECEAFF;
+  --c-indigo-deep: #15105A;
+  --c-indigo-night: #090632;
+  --c-cyan: #0E7C8F;
+
+  --c-gold: #F4B42A;
+  --c-gold-soft: #FFF1CF;
+  --c-gold-pale: #FFD66E;
+  --c-on-gold: #2B1D00;
+
+  /* Deaf Community: teal + coral */
+  --c-teal: #0A7370;
+  --c-teal-strong: #075755;
+  --c-teal-soft: #DCF3F0;
+  --c-teal-deep: #06403F;
+  --c-teal-night: #032827;
+  --c-on-teal: #FFFFFF;
+
+  --c-coral: #C9402F;
+  --c-coral-ink: #A8321F;   /* coral for small text on light backgrounds */
+  --c-coral-soft: #FCE5E1;
+  --c-coral-pale: #FFB4A8;
+
+  /* Light on deep world colors (landing, hub heroes) */
+  --c-cream: #FFF6E3;
+
+  /* The active accent (components use these). Default: Awareness & Learning. */
+  --c-primary: var(--c-indigo);
+  --c-primary-strong: var(--c-indigo-strong);
+  --c-primary-soft: var(--c-indigo-soft);
+  --c-on-primary: #FFFFFF;
+  --c-accent-2: var(--c-gold);
+
+  /* Semantic */
+  --c-success: #1B7340;
+  --c-success-soft: #E1F4E8;
+  --c-danger: #B4232F;
+  --c-danger-soft: #FBE3E5;
+  --c-warning: #835500;
+  --c-warning-soft: #FFF1D0;
+
+  --c-focus: #4634D6;
+  --c-backdrop: rgba(8, 9, 30, 0.6);
+
+  /* Woven (banig) pattern colors */
+  --weave-a: rgba(70, 52, 214, 0.05);
+  --weave-b: rgba(244, 180, 42, 0.08);
+
+  /* Light, glass and glow (the "night horizon" identity) */
+  --grad-learn: linear-gradient(120deg, #6C5CFF 0%, #4C8DFF 55%, #2CC6E0 100%);
+  --grad-community: linear-gradient(120deg, #0FA89E 0%, #36C7B6 50%, #FF8D7E 100%);
+  --grad-primary: var(--grad-learn);
+  /* Button fills: every stop keeps 4.5:1 with --c-on-primary. */
+  --grad-btn: linear-gradient(120deg, #4634D6 0%, #3A2BC0 55%, #0E6F80 100%);
+  --grad-text: linear-gradient(100deg, #2F21A6 0%, #4634D6 45%, #0E7C8F 100%);
+  --glass: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));
+  --glass-line: rgba(70, 52, 214, 0.12);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glow: 0 18px 44px -22px color-mix(in srgb, var(--c-primary) 55%, transparent);
+  --aurora-a: rgba(108, 92, 255, 0.14);
+  --aurora-b: rgba(44, 198, 224, 0.12);
+  --aurora-c: rgba(255, 141, 126, 0.1);
+  --grid-line: rgba(70, 52, 214, 0.06);
+
+  /* Elevation */
+  --sh-1: 0 1px 2px rgba(13, 16, 51, 0.05), 0 1px 1px rgba(13, 16, 51, 0.03);
+  --sh-2: 0 2px 4px rgba(13, 16, 51, 0.04), 0 14px 32px -16px rgba(13, 16, 51, 0.22);
+  --sh-3: 0 4px 10px rgba(13, 16, 51, 0.05), 0 30px 64px -26px rgba(13, 16, 51, 0.36);
+  --sh-glow: 0 18px 50px -20px color-mix(in srgb, var(--c-primary) 55%, transparent);
+
+  /* Shape */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* Spacing */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  --s-9: 6rem;
+
+  /* Layout */
+  --container: 1200px;
+  --container-narrow: 760px;
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --header-h: 66px;
+  --header-total: 66px;   /* header + sticky world navigation, kept in sync by shell.js */
+  --tabbar-h: 64px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast: 140ms;
+  --t-med: 240ms;
+  --t-slow: 420ms;
+  --t-world: 700ms;
+
+  /* Layers */
+  --z-header: 50;
+  --z-worldnav: 49;
+  --z-tabbar: 60;
+  --z-toast: 90;
+}
+
+/* ---------- Deaf Community world: the accent becomes teal ---------- */
+[data-world="community"] {
+  --c-primary: var(--c-teal);
+  --c-primary-strong: var(--c-teal-strong);
+  --c-primary-soft: var(--c-teal-soft);
+  --c-on-primary: var(--c-on-teal);
+  --c-accent-2: var(--c-coral);
+  --grad-primary: var(--grad-community);
+  --grad-btn: linear-gradient(120deg, #0A7370 0%, #08665F 55%, #A8321F 100%);
+  --weave-a: rgba(10, 115, 112, 0.06);
+  --weave-b: rgba(201, 64, 47, 0.07);
+}
+
+/* ---------- Dark theme: "Gabi", the night horizon (default) ---------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-bg: #060719;
+  --c-bg-alt: #0B0D27;
+  --c-surface: #0F1232;
+  --c-surface-2: #14183F;
+  --c-ink: #F1F2FF;
+  --c-ink-2: #C5C9EE;
+  --c-ink-3: #A0A6D6;
+  --c-line: #252A5C;
+  --c-line-strong: #3D4489;
+
+  --c-indigo: #A598FF;
+  --c-indigo-strong: #C9C1FF;
+  --c-indigo-soft: #211D5A;
+  --c-indigo-deep: #130E48;
+  --c-indigo-night: #08062A;
+  --c-cyan: #62E6F5;
+
+  --c-gold: #FFCF5C;
+  --c-gold-soft: #382C0E;
+  --c-on-gold: #261A00;
+
+  --c-teal: #4BE1D1;
+  --c-teal-strong: #93F2E8;
+  --c-teal-soft: #0B3533;
+  --c-teal-deep: #043130;
+  --c-teal-night: #021A19;
+  --c-on-teal: #03201E;
+
+  --c-coral: #FF8D7E;
+  --c-coral-ink: #FF8D7E;
+  --c-coral-soft: #3D1C1A;
+
+  --c-primary: var(--c-indigo);
+  --c-primary-strong: var(--c-indigo-strong);
+  --c-primary-soft: var(--c-indigo-soft);
+  --c-on-primary: #0D0938;
+
+  --c-success: #5BD18B;
+  --c-success-soft: #123322;
+  --c-danger: #FF7A85;
+  --c-danger-soft: #3A1418;
+  --c-warning: #FFD166;
+  --c-warning-soft: #3A2E10;
+
+  --c-focus: #FFD166;
+  --c-backdrop: rgba(2, 2, 12, 0.74);
+
+  --weave-a: rgba(165, 152, 255, 0.07);
+  --weave-b: rgba(255, 207, 92, 0.05);
+
+  --grad-btn: linear-gradient(120deg, #A598FF 0%, #86AEFF 55%, #62E6F5 100%);
+  --grad-text: linear-gradient(100deg, #FFFFFF 0%, #D9D3FF 40%, #8DEBF7 100%);
+  --glass: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025));
+  --glass-line: rgba(178, 186, 255, 0.16);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --glow: 0 0 0 1px color-mix(in srgb, var(--c-primary) 26%, transparent), 0 22px 60px -26px color-mix(in srgb, var(--c-primary) 70%, transparent);
+  --aurora-a: rgba(108, 92, 255, 0.22);
+  --aurora-b: rgba(44, 198, 224, 0.13);
+  --aurora-c: rgba(255, 141, 126, 0.08);
+  --grid-line: rgba(160, 170, 255, 0.055);
+
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --sh-2: 0 14px 32px -16px rgba(0, 0, 0, 0.7);
+  --sh-3: 0 30px 64px -26px rgba(0, 0, 0, 0.8);
+}
+
+:root[data-theme="dark"] [data-world="community"] {
+  --c-primary: var(--c-teal);
+  --c-primary-strong: var(--c-teal-strong);
+  --c-primary-soft: var(--c-teal-soft);
+  --c-on-primary: var(--c-on-teal);
+  --weave-a: rgba(75, 225, 209, 0.07);
+  --weave-b: rgba(255, 141, 126, 0.06);
+  --grad-btn: linear-gradient(120deg, #4BE1D1 0%, #8CEBDB 55%, #FFB1A5 100%);
+  --grad-text: linear-gradient(100deg, #FFFFFF 0%, #C9FFF7 45%, #FFC2B8 100%);
+}
+
+/* ---------- High contrast (light) ---------- */
+:root[data-contrast="high"] {
+  --c-bg: #FFFFFF;
+  --c-bg-alt: #FFFFFF;
+  --c-surface: #FFFFFF;
+  --c-surface-2: #FFFFFF;
+  --c-ink: #000000;
+  --c-ink-2: #000000;
+  --c-ink-3: #1F1F1F;
+  --c-line: #000000;
+  --c-line-strong: #000000;
+  --c-indigo: #1B0D9E;
+  --c-indigo-strong: #0A0466;
+  --c-indigo-soft: #E6E3FF;
+  --c-primary: #1B0D9E;
+  --c-primary-strong: #0A0466;
+  --c-primary-soft: #E6E3FF;
+  --c-on-primary: #FFFFFF;
+  --c-teal: #00504D;
+  --c-teal-strong: #003432;
+  --c-teal-soft: #DFF5F2;
+  --c-coral: #9E1206;
+  --c-coral-ink: #9E1206;
+  --c-warning: #5C3B00;
+  --c-danger: #8E0010;
+  --c-success: #0B5129;
+  --c-focus: #000000;
+  --weave-a: transparent;
+  --weave-b: transparent;
+  --grad-primary: linear-gradient(#1B0D9E, #1B0D9E);
+  --grad-btn: linear-gradient(#1B0D9E, #1B0D9E);
+  --grad-text: linear-gradient(#000000, #000000);
+  --glass: linear-gradient(#FFFFFF, #FFFFFF);
+  --glass-line: #000000;
+  --glass-hi: none;
+  --glow: none;
+  --aurora-a: transparent;
+  --aurora-b: transparent;
+  --aurora-c: transparent;
+  --grid-line: transparent;
+}
+
+:root[data-contrast="high"] [data-world="community"] {
+  --c-primary: #00504D;
+  --c-primary-strong: #003432;
+  --c-primary-soft: #DFF5F2;
+  --c-on-primary: #FFFFFF;
+  --grad-primary: linear-gradient(#00504D, #00504D);
+  --grad-btn: linear-gradient(#00504D, #00504D);
+}
+
+/* ---------- High contrast (dark) ---------- */
+:root[data-theme="dark"][data-contrast="high"] {
+  --c-bg: #000000;
+  --c-bg-alt: #000000;
+  --c-surface: #000000;
+  --c-surface-2: #000000;
+  --c-ink: #FFFFFF;
+  --c-ink-2: #FFFFFF;
+  --c-ink-3: #EDEDED;
+  --c-line: #FFFFFF;
+  --c-line-strong: #FFFFFF;
+  --c-indigo: #FFE14D;
+  --c-indigo-strong: #FFF0A0;
+  --c-indigo-soft: #262000;
+  --c-primary: #FFE14D;
+  --c-primary-strong: #FFF0A0;
+  --c-primary-soft: #262000;
+  --c-on-primary: #000000;
+  --c-teal: #6FF2E6;
+  --c-teal-strong: #B5FFF8;
+  --c-teal-soft: #002A28;
+  --c-coral: #FF9C8F;
+  --c-coral-ink: #FF9C8F;
+  --c-warning: #FFE14D;
+  --c-danger: #FF8C95;
+  --c-success: #7CF0A9;
+  --c-focus: #FFE14D;
+  --grad-primary: linear-gradient(#FFE14D, #FFE14D);
+  --grad-btn: linear-gradient(#FFE14D, #FFE14D);
+  --grad-text: linear-gradient(#FFFFFF, #FFFFFF);
+  --glass: linear-gradient(#000000, #000000);
+  --glass-line: #FFFFFF;
+}
+
+:root[data-theme="dark"][data-contrast="high"] [data-world="community"] {
+  --c-primary: #6FF2E6;
+  --c-primary-strong: #B5FFF8;
+  --c-primary-soft: #002A28;
+  --c-on-primary: #000000;
+  --grad-primary: linear-gradient(#6FF2E6, #6FF2E6);
+  --grad-btn: linear-gradient(#6FF2E6, #6FF2E6);
+}

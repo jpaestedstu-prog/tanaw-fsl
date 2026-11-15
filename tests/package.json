@@ -1,0 +1,30 @@
+{
+  "name": "tanaw-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automated browser checks for Tanaw (headless Chrome via puppeteer-core, axe-core; WebGL through SwiftShader).",
+  "scripts": {
+    "smoke": "node smoke.js ../index.html",
+    "flows": "node flows.js ../index.html",
+    "nodemos": "node nodemos.js ../index.html",
+    "features": "node features.js ../index.html",
+    "landing": "node landing.js ../index.html",
+    "accounts": "node accounts.js ../index.html",
+    "admin": "node admin.js ../admin.html",
+    "axe": "node axe.js ../index.html light standard 1280",
+    "axe:dark": "node axe.js ../index.html dark standard 1280",
+    "axe:contrast": "node axe.js ../index.html light high 1280",
+    "axe:phone": "node axe.js ../index.html light standard 390",
+    "axe:states": "node axe-states.js ../index.html light",
+    "focus": "node focusring.js ../index.html",
+    "offline": "node offline.js",
+    "reflow": "node reflow.js ../index.html",
+    "sweep": "node sweep.js ../index.html",
+    "browsers": "node browsers.js ../index.html"
+  },
+  "dependencies": {
+    "axe-core": "4.10.2",
+    "playwright": "1.49.1",
+    "puppeteer-core": "23.11.1"
+  }
+}

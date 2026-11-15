@@ -1,0 +1,991 @@
+/* =========================================================================
+   Tanaw — the horizon (#/): the split-screen landing
+
+   Two worlds meet at a seam, with Tanaw's eye on it. On wide screens each world
+   is a full-size layer, and --seam (set by components/horizon.js, 0.5 without
+   it) slides a window over each layer. That is why leaning never re-wraps text
+   and costs no repaint. On phones the same worlds stack, meeting at a horizon.
+
+   The scenes are decoration and aria-hidden. The worlds' deep colors stay the
+   same in every theme, so the text colors here are fixed; high contrast removes
+   the scenes and uses plain panels.
+   ========================================================================= */
+
+.horizon {
+  --c-focus: #FFD66E;
+  --cream: #FFF6E3;
+  --gold-pale: #FFD66E;
+  --coral-pale: #FFB4A8;
+  position: relative;
+  background: #08062A;
+  color: var(--cream);
+}
+
+.horizon__split {
+  --seam: 0.5;
+  --lean: 0;
+  --px: 0;
+  --py: 0;
+  --amp: 0.05;
+  --pad: var(--gutter);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+/* ---------- The title: a pill at the top of the seam ---------- */
+.horizon__title {
+  position: absolute;
+  top: 0.65rem;
+  left: 50%;
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  width: max-content;
+  max-width: calc(100% - 1.5rem);
+  margin: 0;
+  padding: 0.3rem 0.95rem 0.34rem;
+  border-radius: var(--r-pill);
+  background: var(--cream);
+  color: #17162B;
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.horizon__word {
+  margin-right: -0.26em;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 700;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.26em;
+  line-height: 1.2;
+}
+
+.horizon__tag {
+  color: #4A4866;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ---------- A world ---------- */
+.realm {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--cream);
+}
+
+.realm__inner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  padding: var(--s-5) var(--pad) var(--s-6);
+}
+
+.realm--learn .realm__inner { padding-top: 3.9rem; padding-bottom: 3.5rem; }
+.realm--community .realm__inner { padding-top: 3.5rem; }
+
+.realm__scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Keeps the words readable over the materials. */
+.realm__scrim {
+  position: absolute;
+  inset: 0;
+}
+
+.realm--learn .realm__scrim {
+  background: linear-gradient(to top, rgba(8, 5, 40, 0.9) 8%, rgba(8, 5, 40, 0.6) 46%, rgba(8, 5, 40, 0.12) 78%);
+}
+
+.realm--community .realm__scrim {
+  background: linear-gradient(to top, rgba(1, 26, 25, 0.93) 8%, rgba(1, 26, 25, 0.66) 46%, rgba(1, 26, 25, 0.14) 78%);
+}
+
+/* The sun behind the shell panes. Moved with a transform, so following the pointer never repaints it. */
+.realm__sun {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(closest-side, rgba(255, 222, 130, 0.78), rgba(255, 214, 110, 0.32) 42%, rgba(255, 214, 110, 0.08) 72%, transparent);
+  transform: translate3d(calc(var(--lx, 62vw) - 450px), calc(var(--ly, 14vh) - 450px), 0);
+}
+
+.realm__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(90% 60% at 72% 24%, rgba(255, 214, 110, 0.14), transparent 70%);
+}
+
+.realm__copy {
+  position: relative;
+  width: 100%;
+}
+
+.realm__eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--gold-pale);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+}
+
+.realm--community .realm__eyebrow { color: var(--coral-pale); }
+
+.realm__title {
+  margin: 0 0 0.5rem;
+  color: var(--cream);
+  font-family: var(--font-world);
+  font-size: clamp(2.35rem, 1.6rem + 3.6vw, 3rem);
+  font-weight: 800;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+}
+
+.realm__title span {
+  display: block;
+  color: var(--gold-pale);
+}
+
+.realm--community .realm__title span { color: var(--coral-pale); }
+
+.realm__lead {
+  max-width: 34rem;
+  margin: 0 0 0.85rem;
+  color: rgba(255, 246, 227, 0.94);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+/* ---------- Enter, then the world's stations: its facts are also the way in ---------- */
+.realm__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.realm__nav {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-width: 0;
+  margin-right: calc(var(--pad) * -1);
+}
+
+.realm__stations {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 3px var(--pad) 3px 3px;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.realm__stations::-webkit-scrollbar { display: none; }
+
+.realm__station {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 40px;
+  padding: 0.2rem 0.75rem;
+  border: 1px solid rgba(255, 246, 227, 0.4);
+  border-radius: var(--r-pill);
+  background: rgba(6, 4, 30, 0.45);
+  color: var(--cream);
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--t-fast), border-color var(--t-fast), color var(--t-fast), transform var(--t-fast) var(--ease);
+}
+
+.realm__station:hover {
+  border-color: var(--cream);
+  background: var(--cream);
+  color: #17162B;
+}
+
+.realm__count {
+  padding: 0 0.32rem;
+  border-radius: var(--r-pill);
+  background: rgba(255, 246, 227, 0.16);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+}
+
+.realm__station:hover .realm__count { background: rgba(23, 22, 43, 0.12); }
+
+.realm__exp {
+  padding: 0 0.4rem;
+  border: 1px solid rgba(255, 214, 110, 0.75);
+  border-radius: var(--r-pill);
+  color: var(--gold-pale);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.realm__station:hover .realm__exp { border-color: #6B4B00; color: #6B4B00; }
+
+/* ---------- Enter (on wide screens, a click anywhere in the world counts: components/horizon.js) ---------- */
+.realm__cta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 50px;
+  padding: 0.65rem 1.35rem;
+  border-radius: var(--r-pill);
+  background: var(--gold-pale);
+  color: #2B1D00;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 14px 30px -14px rgba(255, 214, 110, 0.9);
+  transition: box-shadow var(--t-med);
+}
+
+.realm--community .realm__cta {
+  background: var(--coral-pale);
+  color: #3A0D06;
+  box-shadow: 0 14px 30px -14px rgba(255, 180, 168, 0.9);
+}
+
+.realm__cta:hover { color: #2B1D00; }
+.realm--community .realm__cta:hover { color: #3A0D06; }
+
+.realm__cta:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 4px;
+}
+
+.realm__cta .icon {
+  transition: transform var(--t-med) var(--ease-out);
+}
+
+.realm:hover .realm__cta .icon,
+.realm:focus-within .realm__cta .icon {
+  transform: translateX(4px);
+}
+
+/* ---------- The five parts of a sign, at different depths ---------- */
+.realm__orbs {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orb {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate3d(calc(var(--px) * var(--d) * 46px), calc(var(--py) * var(--d) * 32px), 0);
+}
+
+/* Points of light with a word beside them, drawn unlike the links below so they do not look clickable. */
+.orb span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cream);
+  font-size: 0.86rem;
+  font-style: italic;
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(8, 5, 40, 0.95), 0 0 14px rgba(8, 5, 40, 0.9), 0 0 4px rgba(8, 5, 40, 0.9);
+}
+
+.orb span::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold-pale);
+  box-shadow: 0 0 0 3px rgba(255, 214, 110, 0.22), 0 0 14px 2px var(--gold-pale);
+}
+
+/* A short float when the page opens (over within five seconds), then they only answer the pointer. */
+:root[data-motion="full"] .orb span {
+  animation: orb-float 2.25s ease-in-out 2;
+  animation-delay: calc(var(--i) * 80ms);
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ---------- People around a mat, seen from above ---------- */
+.realm__gathering {
+  position: absolute;
+  right: -24%;
+  bottom: -30%;
+  width: min(66%, 280px);
+  opacity: 0.34;
+}
+
+.realm__gathering .art {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Quiets the weave around the circle, so the people read clearly against it. */
+.realm__gathering::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(2, 40, 38, 0.92) 55%, rgba(2, 40, 38, 0.55) 78%, transparent);
+}
+
+/* The person nearest the pointer takes the turn: everyone's sightlines meet there.
+   Stronger than the rule that passes the turn around when the page opens (components.css). */
+:root[data-motion] .realm__gathering.has-turn .g-lines { animation: none; opacity: 0; transition: opacity var(--t-med); }
+:root[data-motion] .realm__gathering.has-turn .g-glow { animation: none; }
+:root[data-motion] .realm__gathering.has-turn .g-lines.is-turn { opacity: 1; }
+:root[data-motion] .realm__gathering.has-turn .g-person.is-turn .g-glow { fill: rgba(255, 214, 110, 0.22); stroke: rgba(255, 214, 110, 0.9); }
+
+/* ---------- The seam and Tanaw's eye ---------- */
+.seam {
+  position: relative;
+  z-index: 4;
+  height: 0;
+  pointer-events: none;
+}
+
+.seam__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 246, 227, 0.8) 18%, #FFD66E 50%, rgba(255, 246, 227, 0.8) 82%, transparent);
+}
+
+.seam__grip {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  display: flex;
+  align-items: center;
+  transform: translate(-50%, -50%);
+}
+
+.seam__arrow { display: none; }
+
+/* A box-shadow, not a filter: a filter would be re-rendered off screen on every frame of a lean. */
+.seam-eye {
+  width: 84px;
+  height: 84px;
+  max-width: none;
+  overflow: visible;
+  border-radius: 50%;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.5);
+}
+
+.seam-eye .eye__halo { fill: var(--cream); stroke: #F2BE4A; stroke-width: 3; }
+.seam-eye .eye__white { fill: #FFFFFF; }
+.seam-eye .eye__iris { fill: #F4B42A; }
+.seam-eye .eye__pupil { fill: #17162B; }
+.seam-eye .eye__glint { fill: #FFFFFF; }
+.seam-eye .eye__line { fill: none; stroke: #17162B; stroke-width: 3; }
+
+.eye__look {
+  transition: transform 320ms var(--ease-out);
+}
+
+.eye__lid {
+  transform-origin: 60px 60px;
+}
+
+/* The eye blinks as you cross from one world to the other. */
+:root[data-motion="full"] .seam-eye.is-blinking .eye__lid {
+  animation: eye-blink 260ms ease-in-out;
+}
+
+@keyframes eye-blink {
+  0%, 100% { transform: scaleY(1); }
+  45% { transform: scaleY(0.06); }
+}
+
+/* ---------- Beads: the everyday scenes where the two worlds meet (wide screens) ---------- */
+.beads { display: none; }
+
+/* ---------- First view of a visit: the eye opens, the worlds part ---------- */
+.horizon__veil { display: none; }
+
+.horizon.is-intro .horizon__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+}
+
+.horizon__veil span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.2%;
+  background: #06041F;
+}
+
+.horizon__veil span:first-child { top: 0; animation: veil-up 820ms var(--ease-out) 420ms both; }
+.horizon__veil span:last-child { bottom: 0; animation: veil-down 820ms var(--ease-out) 420ms both; }
+
+@keyframes veil-up { to { transform: translateY(-101%); } }
+@keyframes veil-down { to { transform: translateY(101%); } }
+
+.horizon.is-intro .seam-eye .eye__lid { animation: eye-open 620ms var(--ease-out) 120ms both; }
+
+@keyframes eye-open {
+  from { transform: scaleY(0.04); }
+  to { transform: scaleY(1); }
+}
+
+.horizon.is-intro .seam__line { animation: seam-draw-x 640ms var(--ease-out) both; }
+
+@keyframes seam-draw-x {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+/* ======================================================================
+   Wide screens: the worlds side by side, one window over each
+   ====================================================================== */
+@media (min-width: 860px) {
+  .horizon__split {
+    --pad: clamp(1.5rem, 4cqw, 4rem);
+    --clear: 4.9rem; /* room for the eye and the beads beside the seam */
+    --copy: min(34rem, calc(50cqw - var(--clear) - var(--pad) - var(--amp) * 100cqw));
+    display: block;
+    container-type: inline-size;
+    /* --need (components/horizon.js) grows the worlds to fit their words, so large text is never cut off. */
+    height: max(clamp(560px, calc(100svh - var(--header-h) - 26px), 960px), var(--need, 0px));
+    touch-action: auto;
+  }
+
+  .realm {
+    position: absolute;
+    inset: 0;
+  }
+
+  .realm__inner {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    padding: 0 var(--pad) clamp(1.5rem, 4.6vh, 3.25rem);
+  }
+
+  .realm--learn .realm__inner,
+  .realm--community .realm__inner {
+    padding-top: 0;
+    padding-bottom: clamp(1.5rem, 4.6vh, 3.25rem);
+  }
+
+  /* The window: each world's frame slides, its contents counter-slide and stay still. */
+  .realm--learn { transform: translate3d(calc((var(--seam) - 1) * 100cqw), 0, 0); }
+  .realm--learn .realm__inner { transform: translate3d(calc((1 - var(--seam)) * 100cqw), 0, 0); }
+  .realm--community { transform: translate3d(calc(var(--seam) * 100cqw), 0, 0); }
+  .realm--community .realm__inner { transform: translate3d(calc(var(--seam) * -100cqw), 0, 0); }
+
+  .horizon__split:hover .realm,
+  .horizon__split:hover .realm__inner,
+  .horizon__split[data-entering] .realm,
+  .horizon__split[data-entering] .realm__inner {
+    will-change: transform;
+  }
+
+  .realm__copy { max-width: var(--copy); }
+
+  /* The narrower world steps back; words hold their place and fade only if pulled past readable. */
+  .realm--learn .realm__copy { opacity: clamp(0, calc(2.6 + var(--lean) * 1.5), 1); }
+
+  /* Words stay still while their own world opens, so Enter never slides out from under the pointer.
+     They only shift when the world narrows, to stay clear of the seam, and by then the pointer is elsewhere. */
+  .realm--community .realm__copy {
+    margin-left: calc(50cqw + var(--clear) - var(--pad));
+    opacity: clamp(0, calc(2.6 - var(--lean) * 1.5), 1);
+    transform: translate3d(calc(max(0, var(--seam) - 0.5) * 100cqw), 0, 0);
+  }
+
+  .realm__inner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #04021A;
+    pointer-events: none;
+  }
+
+  .realm--learn .realm__inner::after { opacity: clamp(0, calc(var(--lean) * -0.38), 0.6); }
+  .realm--community .realm__inner::after { opacity: clamp(0, calc(var(--lean) * 0.38), 0.6); }
+
+  .realm__title { font-size: clamp(2.5rem, min(5.5cqw, 10.6vh), 5.1rem); }
+
+  .realm__lead {
+    font-size: clamp(0.98rem, 0.92rem + 0.26vh, 1.14rem);
+    margin-bottom: 0.9rem;
+  }
+
+  /* Enter stands alone; the stations sit under it and may run a little wider than the words. */
+  .realm__actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .realm__nav {
+    flex: none;
+    width: calc(var(--copy) + var(--clear) - 1.5rem);
+    max-width: 38rem;
+    margin-right: 0;
+  }
+
+  .realm__stations {
+    flex-wrap: wrap;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .realm__station {
+    min-height: 32px;
+    padding: 0.12rem 0.55rem;
+    font-size: 0.82rem;
+  }
+
+  /* Touch screens this wide still get comfortable targets. */
+  @media (pointer: coarse) {
+    .realm__station { min-height: 40px; }
+  }
+
+  .realm__sun { transform: translate3d(calc(var(--lx, 34cqw) - 450px), calc(var(--ly, 24%) - 450px), 0); }
+
+  /* The hubs fade their lattice with a mask. Here it moves on every frame of a lean, and a mask would be
+     re-rendered off screen each time, so the scrim above it does the fading instead. */
+  .realm--learn .realm__lattice {
+    inset: -18% -10%;
+    transform:
+      translate3d(calc((var(--seam) - 0.5) * 90px), 0, 0)
+      perspective(1100px) rotateY(calc(-16deg + var(--px) * 8deg)) rotateX(calc(7deg + var(--py) * -6deg));
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .realm--learn .realm__scrim {
+    background:
+      radial-gradient(72% 92% at 32% 30%, transparent 40%, rgba(11, 7, 48, 0.86) 96%),
+      linear-gradient(to top, rgba(8, 5, 40, 0.9) 8%, rgba(8, 5, 40, 0.6) 46%, rgba(8, 5, 40, 0.12) 78%);
+  }
+
+  .realm--community .realm__scrim {
+    background: linear-gradient(to top, rgba(1, 26, 25, 0.9) 6%, rgba(1, 26, 25, 0.58) 46%, rgba(1, 26, 25, 0.1) 76%);
+  }
+
+  .realm__orbs {
+    position: absolute;
+    left: calc(var(--pad) - 0.5rem);
+    top: 5%;
+    display: block;
+    width: calc(50cqw - var(--pad) - var(--clear));
+    height: 24%;
+  }
+
+  /* People around the mat: off the world's far corner, clear of the words. */
+  .realm__gathering {
+    right: -2.6cqw;
+    top: 1.5%;
+    bottom: auto;
+    width: auto;
+    height: 44%;
+    aspect-ratio: 1;
+    opacity: 1;
+    transform: translate3d(calc(var(--px) * -18px), calc(var(--py) * -14px), 0);
+  }
+
+  /* Seam: a vertical line of light, carried by a single transform. */
+  .seam {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    height: auto;
+    transform: translate3d(calc(var(--seam) * 100cqw), 0, 0);
+  }
+
+  .seam__line {
+    left: -1px;
+    right: auto;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    height: auto;
+    background: linear-gradient(180deg, rgba(255, 246, 227, 0.2), rgba(255, 246, 227, 0.75) 22%, #FFD66E 50%, rgba(255, 246, 227, 0.75) 78%, rgba(255, 246, 227, 0.2));
+  }
+
+  .seam__grip {
+    top: 50%;
+    pointer-events: auto;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  .horizon__split.is-dragging .seam__grip { cursor: grabbing; }
+
+  /* The eye only moves when motion is welcome; the Enter links always work. */
+  :root[data-motion="reduce"] .seam__grip { cursor: default; }
+  :root[data-motion="reduce"] .seam__arrow { display: none; }
+
+  /* A click anywhere in a world enters it. */
+  @media (hover: hover) and (pointer: fine) {
+    .realm__inner { cursor: pointer; }
+    .realm__inner .realm__copy p,
+    .realm__inner .realm__copy h2 { cursor: text; }
+  }
+
+  .seam-eye {
+    width: clamp(92px, 15vh, 120px);
+    height: clamp(92px, 15vh, 120px);
+    transition: transform var(--t-med) var(--ease-out);
+  }
+
+  .seam__grip:hover .seam-eye,
+  .horizon__split.is-dragging .seam-eye {
+    transform: scale(1.05);
+  }
+
+  /* Small arrows say the eye can be pulled. */
+  .seam__arrow {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    color: var(--cream);
+    opacity: 0;
+    transition: opacity var(--t-med), transform var(--t-med) var(--ease-out);
+  }
+
+  .seam__arrow .icon {
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+  }
+
+  .seam__arrow--left { transform: translateX(6px); }
+  .seam__arrow--right { transform: translateX(-6px); }
+
+  .seam__grip:hover .seam__arrow,
+  .horizon__split.is-dragging .seam__arrow {
+    opacity: 1;
+    transform: none;
+  }
+
+  .horizon__split.is-dragging,
+  .horizon__split.is-dragging * {
+    user-select: none;
+  }
+
+  /* Title pill rides at the top of the seam. */
+  .horizon__title {
+    top: clamp(0.8rem, 3vh, 1.6rem);
+    left: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 0.5rem 1.25rem 0.55rem;
+    transform: translate3d(calc(var(--seam) * 100cqw - 50%), 0, 0);
+    pointer-events: none;
+  }
+
+  .horizon__word { font-size: 1.5rem; line-height: 1.1; }
+
+  /* ---------- Beads ---------- */
+  .beads {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 4;
+    display: block;
+    width: 0;
+    transform: translate3d(calc(var(--seam) * 100cqw), 0, 0);
+  }
+
+  .beads__list {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .beads__item {
+    position: absolute;
+    left: 0;
+    top: var(--y);
+  }
+
+  .bead {
+    position: absolute;
+    left: -16px;
+    top: -16px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #17162B;
+    text-decoration: none;
+  }
+
+  .bead:hover { color: #17162B; }
+
+  .bead:focus-visible {
+    outline: 3px solid var(--cream);
+    outline-offset: 0;
+  }
+
+  .bead__dot {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #17162B;
+    border-radius: 3px;
+    background: linear-gradient(135deg, #C9C2FF 50%, #4BE1D1 50%);
+    box-shadow: 0 0 0 2px var(--cream), 0 4px 10px rgba(0, 0, 0, 0.5);
+    transform: rotate(45deg);
+    transition: transform var(--t-med) var(--ease-out);
+  }
+
+  .bead:hover .bead__dot,
+  .bead:focus-visible .bead__dot {
+    transform: rotate(45deg) scale(1.45);
+  }
+
+  /* The card straddles the seam: what you learn on the left, the community on the right. */
+  .bead__card {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 2px);
+    display: block;
+    width: 21rem;
+    padding-bottom: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 6px);
+    transition: opacity var(--t-fast), transform var(--t-med) var(--ease-out);
+  }
+
+  .bead:hover .bead__card,
+  .bead:focus-visible .bead__card {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+
+  /* The highest bead opens downward, clear of the title. */
+  .beads__item:first-child .bead__card {
+    top: calc(100% + 2px);
+    bottom: auto;
+    padding-top: 8px;
+    padding-bottom: 0;
+    transform: translate(-50%, -6px);
+  }
+
+  .beads__item:first-child .bead:hover .bead__card,
+  .beads__item:first-child .bead:focus-visible .bead__card {
+    transform: translate(-50%, 0);
+  }
+
+  .bead__head {
+    display: block;
+    padding: 0.5rem 0.8rem 0.45rem;
+    border-radius: var(--r-md) var(--r-md) 0 0;
+    background: var(--cream);
+    color: #17162B;
+    text-align: center;
+  }
+
+  .bead__fil {
+    display: block;
+    color: #4A4866;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  .bead__title {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .bead__sides {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    border-radius: 0 0 var(--r-md) var(--r-md);
+    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+  }
+
+  .bead__side {
+    padding: 0.4rem 0.65rem 0.5rem;
+    color: var(--cream);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .bead__side--learn { background: #241A8C; text-align: right; }
+  .bead__side--community { background: #075A57; }
+
+  .horizon__split.is-card-dismissed .bead__card {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* While a world is being entered, everything else clears the way. */
+  .horizon__split[data-entering] .beads,
+  .horizon__split[data-entering] .horizon__title,
+  .horizon__split[data-entering] .realm__copy {
+    opacity: 0;
+    transition: opacity 180ms linear;
+  }
+
+  /* Intro on wide screens: the night parts left and right from the seam. */
+  .horizon__veil span {
+    top: 0;
+    bottom: 0;
+    width: 50.2%;
+    height: auto;
+  }
+
+  .horizon__veil span:first-child { left: 0; right: auto; animation-name: veil-left; }
+  .horizon__veil span:last-child { right: 0; left: auto; animation-name: veil-right; }
+
+  .horizon.is-intro .seam__line { animation-name: seam-draw-y; }
+
+  .horizon.is-intro .beads { animation: fadeIn 500ms var(--ease-out) 900ms both; }
+}
+
+@keyframes veil-left { to { transform: translateX(-101%); } }
+@keyframes veil-right { to { transform: translateX(101%); } }
+
+@keyframes seam-draw-y {
+  from { transform: scaleY(0); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+/* Short windows: the words keep their room; the orbs give way. */
+@media (min-width: 860px) and (max-height: 690px) {
+  .realm__orbs { display: none; }
+}
+
+/* Large text or little height (set by components/horizon.js): the words reach up into the scene,
+   so the decoration makes way, and the words keep clear of the title on the seam. */
+@media (min-width: 860px) {
+  .horizon__split.is-tight { --clear: 6.6rem; }
+  .horizon__split.is-tight .realm__orbs { display: none; }
+
+  .horizon__split.is-tight .realm__gathering {
+    right: -5cqw;
+    top: 1%;
+    height: 27%;
+  }
+
+  .horizon__split.is-crowded .realm__gathering { display: none; }
+}
+
+/* Very narrow side-by-side windows: leaning stays small, so the words always fit. */
+@media (min-width: 1100px) {
+  .horizon__split { --amp: 0.075; }
+}
+
+@media (min-width: 1280px) {
+  .horizon__split { --amp: 0.095; }
+}
+
+/* ---------- High contrast: plain panels and solid text ---------- */
+:root[data-contrast="high"] .realm--learn .realm__inner,
+:root[data-contrast="high"] .realm--community .realm__inner {
+  background: #000000;
+  color: #FFFFFF;
+}
+
+:root[data-contrast="high"] .realm__scene,
+:root[data-contrast="high"] .horizon__veil {
+  display: none;
+}
+
+:root[data-contrast="high"] .realm__eyebrow,
+:root[data-contrast="high"] .realm__title span {
+  color: #FFE14D;
+}
+
+:root[data-contrast="high"] .realm__cta,
+:root[data-contrast="high"] .realm--community .realm__cta {
+  background: #FFE14D;
+  color: #000000;
+  box-shadow: none;
+}
+
+:root[data-contrast="high"] .realm__station {
+  border-color: #FFFFFF;
+  background: #000000;
+  color: #FFFFFF;
+}
+
+:root[data-contrast="high"] .realm__station:hover {
+  background: #FFFFFF;
+  color: #000000;
+}
+
+:root[data-contrast="high"] .realm__count { background: none; }
+:root[data-contrast="high"] .realm__exp { border-color: #FFE14D; color: #FFE14D; }
+
+:root[data-contrast="high"] .horizon__title {
+  border: 2px solid #000000;
+  background: #FFFFFF;
+  color: #000000;
+}
+
+:root[data-contrast="high"] .horizon__tag { color: #000000; }
+:root[data-contrast="high"] .seam__line { background: #FFFFFF; }
+:root[data-contrast="high"] .bead__side--learn,
+:root[data-contrast="high"] .bead__side--community { background: #000000; border: 1px solid #FFFFFF; }
+
+@media (forced-colors: active) {
+  .realm__scene,
+  .horizon__veil { display: none; }
+  .realm__cta,
+  .realm__station,
+  .horizon__title { border: 1px solid CanvasText; }
+  .seam__line { background: CanvasText; }
+}

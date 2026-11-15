@@ -1,0 +1,1029 @@
+/* =========================================================================
+   Tanaw — "night horizon" identity layer
+   Loaded last. Turns the shared building blocks into the futuristic look:
+   an aurora backdrop with a faint horizon grid, glass surfaces with a
+   pointer spotlight, gradient buttons, display type, luminous world heroes.
+   Everything here is decoration over the tokens: high-contrast mode and
+   forced colors fall back to solid surfaces.
+   ========================================================================= */
+
+/* ---------- Backdrop ---------- */
+body {
+  font-synthesis-weight: none;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70vw 46vw at 8% -12%, var(--aurora-a), transparent 70%),
+    radial-gradient(52vw 40vw at 100% 8%, var(--aurora-b), transparent 70%),
+    radial-gradient(60vw 44vw at 62% 112%, var(--aurora-c), transparent 70%);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--c-primary) 40%, transparent);
+  color: var(--c-ink);
+}
+
+/* ---------- Type ---------- */
+h1, h2, h3,
+.page-title,
+.section__title,
+.hub-hero__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.hub-hero__title,
+.page-title {
+  line-height: 1.04;
+}
+
+/* Gradient headline text, with a solid fallback wherever gradients cannot be read. */
+.grad-text,
+.page-head .page-title {
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.eyebrow,
+.hub-hero__eyebrow,
+.kicker {
+  font-family: var(--font-display);
+  letter-spacing: 0.14em;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  border-bottom-color: var(--glass-line);
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--c-primary) 75%, transparent) 30%, color-mix(in srgb, var(--c-cyan) 70%, transparent) 70%, transparent);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.brand__bg { fill: #4634D6; }
+body[data-world="community"] .site-header .brand__bg { fill: #0A7370; }
+
+.worlds {
+  background: var(--glass), var(--c-surface);
+  border-color: var(--glass-line);
+  box-shadow: var(--glass-hi);
+}
+
+.worlds__link[aria-current] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-primary) 45%, transparent), 0 8px 24px -14px color-mix(in srgb, var(--c-primary) 80%, transparent);
+}
+
+.world-nav {
+  background: color-mix(in srgb, var(--c-bg) 86%, transparent);
+  border-bottom-color: var(--glass-line);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: var(--font-display);
+  letter-spacing: -0.005em;
+}
+
+.btn--primary {
+  --btn-bd: transparent;
+  background: var(--grad-btn);
+  background-size: 140% 100%;
+  background-position: 0% 50%;
+  color: var(--c-on-primary);
+  box-shadow: 0 10px 28px -14px color-mix(in srgb, var(--c-primary) 85%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform var(--t-fast) var(--ease), background-position var(--t-slow) var(--ease-out), box-shadow var(--t-med);
+}
+
+.btn--primary:hover {
+  background: var(--grad-btn);
+  background-size: 140% 100%;
+  background-position: 100% 50%;
+  box-shadow: 0 14px 34px -14px color-mix(in srgb, var(--c-primary) 95%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn--secondary {
+  --btn-bg: transparent;
+  background: var(--glass), var(--c-surface);
+  border-color: color-mix(in srgb, var(--c-primary) 42%, var(--glass-line));
+}
+
+.btn--secondary:hover {
+  border-color: var(--c-primary);
+  box-shadow: var(--glow);
+}
+
+/* ---------- Glass surfaces ---------- */
+.card,
+.pane,
+.deck-card,
+.mode-card,
+.game-card,
+.start-card,
+.stat-tile,
+.planned-item,
+.work-item,
+.library-tools,
+.word-progress,
+.lab-panel {
+  background: var(--glass), var(--c-surface);
+  border-color: var(--glass-line);
+  box-shadow: var(--glass-hi), var(--sh-2);
+}
+
+/* A soft light follows the pointer across interactive cards (set by fx.js). */
+.pane,
+.game-card,
+.mode-card,
+.start-card,
+.lab-tile,
+.feature {
+  position: relative;
+  isolation: isolate;
+}
+
+.pane::after,
+.game-card::after,
+.mode-card::after,
+.lab-tile::after,
+.feature::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--sx, 50%) var(--sy, -40%), color-mix(in srgb, var(--c-primary) 18%, transparent), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--t-med);
+  pointer-events: none;
+}
+
+.pane:hover::after,
+.game-card:hover::after,
+.mode-card:hover::after,
+.lab-tile:hover::after,
+.feature:hover::after {
+  opacity: 1;
+}
+
+.pane:hover,
+.game-card:hover,
+.mode-card:hover {
+  border-color: color-mix(in srgb, var(--c-primary) 45%, var(--glass-line));
+  box-shadow: var(--glass-hi), var(--glow);
+}
+
+/* ---------- World heroes: aurora above a holographic horizon floor ---------- */
+.hub-hero--learn {
+  background:
+    radial-gradient(90% 80% at 85% -10%, rgba(108, 92, 255, 0.55), transparent 60%),
+    radial-gradient(60% 60% at 10% 110%, rgba(44, 198, 224, 0.22), transparent 70%),
+    linear-gradient(170deg, #1B1272 0%, #0E0A45 55%, #060420 100%);
+}
+
+.hub-hero--community {
+  background:
+    radial-gradient(90% 80% at 12% -10%, rgba(75, 225, 209, 0.42), transparent 60%),
+    radial-gradient(60% 60% at 92% 110%, rgba(255, 141, 126, 0.2), transparent 70%),
+    linear-gradient(190deg, #0A5C5A 0%, #053937 55%, #021716 100%);
+}
+
+.hub-hero::after {
+  content: "";
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  bottom: -2px;
+  height: 58%;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(170, 190, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(170, 190, 255, 0.16) 1px, transparent 1px);
+  background-size: 54px 54px;
+  transform: perspective(520px) rotateX(64deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 85%);
+  mask-image: linear-gradient(to top, #000 10%, transparent 85%);
+}
+
+.hub-hero--community::after {
+  background-image:
+    linear-gradient(rgba(140, 240, 228, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(140, 240, 228, 0.15) 1px, transparent 1px);
+}
+
+.hub-hero__title {
+  background: linear-gradient(100deg, #FFFFFF 0%, #E6E1FF 45%, #9EEFF9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.hub-hero--community .hub-hero__title {
+  background: linear-gradient(100deg, #FFFFFF 0%, #D2FFF8 50%, #FFC9C0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.hub-today {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Badges for experimental features ---------- */
+.exp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.12rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--c-cyan) 55%, transparent);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--c-cyan) 12%, transparent);
+  color: var(--c-ink);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.exp-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-cyan);
+  box-shadow: 0 0 10px var(--c-cyan);
+}
+
+/* ---------- Footer and tab bar ---------- */
+.site-footer {
+  border-top-color: var(--glass-line);
+}
+
+.tabbar {
+  border-top-color: var(--glass-line);
+}
+
+/* ---------- The second landing: the 3D sign language page (dark in every theme) ---------- */
+.nh-hero {
+  --c-focus: #FFD166;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: clamp(2.25rem, 5vw, 4.5rem) clamp(3rem, 7vw, 6rem);
+  background: linear-gradient(180deg, #070624 0%, #0C0A3A 52%, #08072A 100%);
+  color: #F1F2FF;
+}
+
+.nh-hero__sky,
+.nh-hero__floor {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.nh-hero__sky {
+  inset: 0;
+}
+
+.nh-orb {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.nh-orb--a { width: 44vw; height: 44vw; left: -12vw; top: -22vw; background: radial-gradient(circle, rgba(108, 92, 255, 0.5), transparent 68%); }
+.nh-orb--b { width: 38vw; height: 38vw; right: -10vw; top: -6vw; background: radial-gradient(circle, rgba(44, 198, 224, 0.32), transparent 68%); }
+.nh-orb--c { width: 40vw; height: 30vw; left: 30vw; bottom: -14vw; background: radial-gradient(circle, rgba(255, 141, 126, 0.18), transparent 68%); }
+
+.nh-hero__floor {
+  left: -30%;
+  right: -30%;
+  bottom: -2px;
+  height: 46%;
+  background-image:
+    linear-gradient(rgba(170, 190, 255, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(170, 190, 255, 0.18) 1px, transparent 1px);
+  background-size: 56px 56px;
+  transform: perspective(520px) rotateX(66deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 88%);
+  mask-image: linear-gradient(to top, #000 0%, transparent 88%);
+}
+
+.nh-hero__floor::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(98, 230, 245, 0.75), rgba(165, 152, 255, 0.85), transparent);
+  box-shadow: 0 0 24px rgba(98, 230, 245, 0.6);
+}
+
+.nh-hero__inner {
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .nh-hero__inner { grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); }
+}
+
+.nh-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 var(--s-4);
+  color: #C9C2FF;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.nh-eye {
+  width: 40px;
+  height: 40px;
+  max-width: none;
+  flex: none;
+  overflow: visible;
+  filter: drop-shadow(0 6px 14px rgba(108, 92, 255, 0.55));
+}
+
+.nh-eye .eye__halo { fill: #0C0A3A; stroke: rgba(255, 214, 110, 0.9); stroke-width: 4; }
+.nh-eye .eye__white { fill: #FFFFFF; }
+.nh-eye .eye__iris { fill: #F4B42A; }
+.nh-eye .eye__pupil { fill: #17162B; }
+.nh-eye .eye__glint { fill: #FFFFFF; }
+.nh-eye .eye__line { fill: none; stroke: #17162B; stroke-width: 4; }
+
+.nh-title {
+  margin: 0 0 var(--s-4);
+  line-height: 1;
+}
+
+.nh-title__brand {
+  display: block;
+  margin-bottom: 0.35em;
+  color: #FFD166;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+
+.nh-title__line {
+  display: block;
+  font-size: clamp(2.6rem, 6.4vw, 5.2rem);
+  letter-spacing: -0.045em;
+  background: linear-gradient(100deg, #FFFFFF 0%, #E3DDFF 40%, #9EEFF9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.nh-lead {
+  max-width: 60ch;
+  margin: 0 0 var(--s-5);
+  color: #D3D6F5;
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+}
+
+.nh-spell {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 520px;
+  margin-bottom: var(--s-5);
+  padding: 0.9rem;
+  border: 1px solid rgba(178, 186, 255, 0.24);
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.nh-spell__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #F1F2FF;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.nh-spell__label .icon {
+  color: #62E6F5;
+}
+
+.nh-spell__row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nh-spell__row .input {
+  flex: 1;
+  min-width: 0;
+  border-color: rgba(178, 186, 255, 0.34);
+  background: rgba(6, 7, 25, 0.55);
+  color: #FFFFFF;
+}
+
+.nh-spell__row .input::placeholder {
+  color: #B9BEE6;
+}
+
+.nh-worlds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.nh-world {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  padding: 0.65rem 1rem 0.65rem 1.15rem;
+  border: 1px solid rgba(178, 186, 255, 0.26);
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: transform var(--t-fast) var(--ease), border-color var(--t-med), box-shadow var(--t-med);
+}
+
+.nh-world:hover {
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+.nh-world--learn:hover { border-color: #A598FF; box-shadow: 0 16px 40px -18px rgba(108, 92, 255, 0.9); }
+.nh-world--community:hover { border-color: #4BE1D1; box-shadow: 0 16px 40px -18px rgba(75, 225, 209, 0.75); }
+
+.nh-world__fil {
+  grid-column: 1;
+  color: #C9C2FF;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nh-world--community .nh-world__fil { color: #93F2E8; }
+
+.nh-world__label {
+  grid-column: 1;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.nh-world .icon {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.nh-hero__stage .stage3d {
+  max-height: 560px;
+  margin-inline: auto;
+  scroll-margin-bottom: 4.5rem; /* spelling a name scrolls the hand into view, with its letters */
+}
+
+.nh-hero__stage .spell-strip {
+  justify-content: center;
+}
+
+.nh-hero__stage .spell-strip__tile {
+  border-color: rgba(178, 186, 255, 0.26);
+  background: rgba(255, 255, 255, 0.05);
+  color: #F1F2FF;
+}
+
+.nh-hero__stage .spell-strip__tile.is-current {
+  background: linear-gradient(120deg, #A598FF, #62E6F5);
+  color: #0D0938;
+}
+
+.nh-stage-note {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: var(--s-3) auto 0;
+  max-width: 52ch;
+  color: #B9BEE6;
+  font-size: 0.86rem;
+  text-align: start;
+}
+
+.nh-stage-note .icon {
+  flex: none;
+  margin-top: 0.15em;
+  color: #62E6F5;
+}
+
+.nh-stage-note a {
+  color: #9EEFF9;
+}
+
+/* Portals to the two worlds */
+.portal-grid {
+  display: grid;
+  gap: var(--s-5);
+}
+
+@media (min-width: 860px) {
+  .portal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.portal {
+  --c-focus: #FFD166;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  align-content: end;
+  min-height: 380px;
+  border: 1px solid rgba(178, 186, 255, 0.2);
+  border-radius: var(--r-xl);
+  color: #F1F2FF;
+  text-decoration: none;
+  box-shadow: 0 30px 70px -40px rgba(0, 0, 0, 0.85);
+  transition: transform var(--t-med) var(--ease-out), box-shadow var(--t-med), border-color var(--t-med);
+}
+
+.portal:hover {
+  color: #FFFFFF;
+  transform: translateY(-4px);
+}
+
+/* The gold ring is drawn inside the dark card, so it contrasts in every theme
+   (outside, it would sit on the light page of the light theme). */
+.portal:focus-visible {
+  outline-offset: -7px;
+}
+
+.portal--learn {
+  background: radial-gradient(100% 80% at 85% 0%, rgba(108, 92, 255, 0.55), transparent 60%), linear-gradient(165deg, #1B1272 0%, #0E0A45 60%, #060420 100%);
+}
+
+.portal--learn:hover { border-color: #A598FF; box-shadow: 0 30px 80px -36px rgba(108, 92, 255, 0.9); }
+
+.portal--community {
+  background: radial-gradient(100% 80% at 15% 0%, rgba(75, 225, 209, 0.42), transparent 60%), linear-gradient(195deg, #0A5C5A 0%, #053937 60%, #021716 100%);
+}
+
+.portal--community:hover { border-color: #4BE1D1; box-shadow: 0 30px 80px -36px rgba(75, 225, 209, 0.7); }
+
+.portal__art {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.portal__gathering {
+  position: absolute;
+  right: -6%;
+  top: -8%;
+  width: min(62%, 360px);
+  opacity: 0.95;
+}
+
+.portal__body {
+  display: grid;
+  gap: 0.45rem;
+  margin: var(--s-4);
+  padding: clamp(1rem, 2.5vw, 1.4rem);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, rgba(8, 7, 32, 0.6), rgba(8, 7, 32, 0.82));
+}
+
+.portal--community .portal__body {
+  background: linear-gradient(180deg, rgba(2, 24, 23, 0.58), rgba(2, 24, 23, 0.84));
+}
+
+.portal__fil {
+  color: #C9C2FF;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.portal--community .portal__fil { color: #93F2E8; }
+
+.portal__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.portal__text {
+  color: #D3D6F5;
+}
+
+.portal__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.portal__facts span {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--r-pill);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.portal__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #FFD166;
+}
+
+/* The portals keep their own drawn lattice and weave. The same classes elsewhere use capiz.svg and banig.svg. */
+.portal__art .realm__lattice {
+  --cell: 62px;
+  --bar: 5px;
+  --lat: rgba(9, 6, 36, 0.92);
+  inset: -18% -12%;
+  background:
+    linear-gradient(90deg, var(--lat) var(--bar), transparent var(--bar)) 0 0 / var(--cell) var(--cell),
+    linear-gradient(var(--lat) var(--bar), transparent var(--bar)) 0 0 / var(--cell) var(--cell),
+    linear-gradient(135deg, rgba(255, 249, 235, 0.2), rgba(255, 249, 235, 0.04) 55%, rgba(255, 249, 235, 0.12)) 0 0 / var(--cell) var(--cell);
+}
+
+.portal__art .realm__weave {
+  inset: -10%;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 246, 227, 0.075) 0 11px, transparent 11px 22px),
+    repeating-linear-gradient(-45deg, rgba(2, 30, 29, 0.38) 0 11px, transparent 11px 22px),
+    repeating-linear-gradient(45deg, transparent 0 132px, rgba(255, 138, 122, 0.26) 132px 154px, transparent 154px 170px, rgba(255, 201, 77, 0.2) 170px 182px, transparent 182px 286px);
+  transform: none;
+  opacity: 1;
+  -webkit-mask-image: radial-gradient(90% 80% at 50% 35%, #000 30%, rgba(0, 0, 0, 0.35) 85%);
+  mask-image: radial-gradient(90% 80% at 50% 35%, #000 30%, rgba(0, 0, 0, 0.35) 85%);
+}
+
+/* ---------- Landing: feature grid ---------- */
+.feature-grid {
+  display: grid;
+  gap: var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+}
+
+.feature-grid > li {
+  display: flex;
+}
+
+.feature {
+  display: grid;
+  align-content: start;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1.35rem;
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-lg);
+  background: var(--glass), var(--c-surface);
+  box-shadow: var(--glass-hi), var(--sh-2);
+  color: var(--c-ink);
+  text-decoration: none;
+  transition: transform var(--t-fast) var(--ease), border-color var(--t-med), box-shadow var(--t-med);
+}
+
+.feature:hover {
+  color: var(--c-ink);
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--c-primary) 45%, var(--glass-line));
+  box-shadow: var(--glass-hi), var(--glow);
+}
+
+.feature__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--grad-btn);
+  color: var(--c-on-primary);
+  box-shadow: 0 12px 28px -14px color-mix(in srgb, var(--c-primary) 90%, transparent);
+}
+
+.feature__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.feature__text {
+  color: var(--c-ink-2);
+}
+
+.honest-band .checklist {
+  margin-bottom: var(--s-3);
+}
+
+:root[data-contrast="high"] .nh-hero,
+:root[data-contrast="high"] .portal--learn,
+:root[data-contrast="high"] .portal--community {
+  background: #000000;
+}
+
+:root[data-contrast="high"] .nh-hero__sky,
+:root[data-contrast="high"] .nh-hero__floor,
+:root[data-contrast="high"] .portal__art {
+  display: none;
+}
+
+:root[data-contrast="high"] .nh-title__line {
+  background: none;
+  color: #FFFFFF;
+  -webkit-text-fill-color: #FFFFFF;
+}
+
+:root[data-contrast="high"] .portal__body {
+  background: #000000;
+  border-color: #FFFFFF;
+}
+
+/* ---------- Header search button and the command palette ---------- */
+.search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.35rem 0.55rem 0.35rem 0.75rem;
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-pill);
+  background: var(--glass), var(--c-surface);
+  color: var(--c-ink-2);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.search-btn:hover {
+  border-color: var(--c-primary);
+  color: var(--c-ink);
+  box-shadow: var(--glow);
+}
+
+.search-btn .icon {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.search-btn__kbd {
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--c-ink-3);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 899px) {
+  .search-btn { width: 44px; height: 44px; justify-content: center; padding: 0; }
+  .search-btn__label,
+  .search-btn__kbd { display: none; }
+}
+
+.palette {
+  margin-top: 9vh;
+}
+
+.palette .dialog__body {
+  padding-top: 0;
+}
+
+.palette__box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--s-3);
+}
+
+.palette__icon {
+  position: absolute;
+  left: 0.9rem;
+  color: var(--c-ink-3);
+  pointer-events: none;
+}
+
+.palette__input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0.6rem 1rem 0.6rem 2.75rem;
+  border: 1.5px solid var(--c-line-strong);
+  border-radius: var(--r-md);
+  background: var(--c-bg);
+  color: var(--c-ink);
+  font: inherit;
+  font-size: 1.1rem;
+}
+
+.palette__input:focus {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 1px;
+  border-color: var(--c-primary);
+}
+
+.palette__list {
+  display: grid;
+  gap: 0.2rem;
+  max-height: min(52vh, 460px);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.palette__item {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+.palette__item.is-active {
+  border-color: color-mix(in srgb, var(--c-primary) 60%, transparent);
+  background: var(--c-primary-soft);
+}
+
+.palette__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--c-ink-3);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.palette__label {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette__meta {
+  color: var(--c-ink-3);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.palette__empty {
+  padding: 1rem;
+  color: var(--c-ink-2);
+}
+
+.palette__hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: var(--s-3) 0 0;
+  color: var(--c-ink-3);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 560px) {
+  .palette__item { grid-template-columns: minmax(0, 1fr); gap: 0.15rem; }
+  .palette__meta { display: none; }
+}
+
+/* ---------- High contrast and forced colors: solid, flat, readable ---------- */
+:root[data-contrast="high"] body::before,
+:root[data-contrast="high"] .hub-hero::after,
+:root[data-contrast="high"] .site-header::after,
+:root[data-contrast="high"] .pane::after,
+:root[data-contrast="high"] .game-card::after,
+:root[data-contrast="high"] .mode-card::after,
+:root[data-contrast="high"] .lab-tile::after,
+:root[data-contrast="high"] .feature::after {
+  display: none;
+}
+
+:root[data-contrast="high"] .hub-hero__title,
+:root[data-contrast="high"] .grad-text,
+:root[data-contrast="high"] .page-head .page-title {
+  background: none;
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+:root[data-contrast="high"] .page-head .page-title {
+  color: var(--c-ink);
+}
+
+@media (forced-colors: active) {
+  .hub-hero__title,
+  .grad-text,
+  .page-head .page-title {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
+  body::before,
+  .hub-hero::after {
+    display: none;
+  }
+}
+
+/* ---------- Long pages load faster ----------
+   The browser skips laying out what is far off screen until it comes near, which is most of the
+   first load's work on a slow phone. Links, search in the page, keyboard focus and screen readers
+   all still reach what is skipped. --est is the usual height, so the scrollbar stays about the same
+   size while scrolling; "auto" remembers the real height once a section has been seen. */
+.landing > .nh-hero,
+.landing > .section,
+.site-footer,
+#lib-grid .sign-tile {
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--est);
+}
+
+.landing > .nh-hero { --est: 865px; }
+.landing > .nh-portals { --est: 590px; }
+.landing > .section { --est: 640px; }
+.landing > .section--alt { --est: 425px; }
+.landing > .meet { --est: 600px; }
+.landing > .section--tight { --est: 370px; }
+.site-footer { --est: 470px; }
+#lib-grid .sign-tile { --est: 91px; }
+
+@media (max-width: 859px) {
+  .landing > .nh-hero { --est: 1280px; }
+  .landing > .nh-portals { --est: 940px; }
+  .landing > .section { --est: 820px; }
+  .landing > .section--alt { --est: 605px; }
+  .landing > .meet { --est: 840px; }
+  .landing > .section--tight { --est: 405px; }
+  .site-footer { --est: 885px; }
+}
+
+@media (max-width: 639px) {
+  .landing > .nh-hero { --est: 1230px; }
+  .landing > .nh-portals { --est: 920px; }
+  .landing > .section { --est: 1510px; }
+  .landing > .section--alt { --est: 790px; }
+  .landing > .meet { --est: 1530px; }
+  .landing > .section--tight { --est: 610px; }
+  .site-footer { --est: 1250px; }
+  #lib-grid .sign-tile { --est: 125px; }
+}
+
+@media print {
+  .landing > .nh-hero,
+  .landing > .section,
+  #lib-grid .sign-tile {
+    content-visibility: visible;
+  }
+}

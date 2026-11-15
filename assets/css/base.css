@@ -1,0 +1,430 @@
+/* =========================================================================
+   Tanaw — base: reset, typography, utilities, accessibility modes
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: calc(100% * var(--text-scale));
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-total) + 16px);
+  background: var(--c-bg);
+}
+
+/* Focus not obscured (WCAG 2.4.11): scrolling to a focused control keeps it
+   clear of the bars that stay on screen. */
+@media (max-width: 1023px) {
+  html { scroll-padding-bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom)); }
+}
+
+html:has(.player__bar),
+html:has(.game__bar) {
+  scroll-padding-bottom: 112px;
+}
+
+html:has(.player__top),
+html:has(.game__top) {
+  scroll-padding-top: calc(var(--header-total) + 88px);
+}
+
+html:has(.layer-nav) {
+  scroll-padding-top: calc(var(--header-total) + 76px);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--c-ink);
+  background: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+video,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 0.5em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+h1 { font-size: clamp(2rem, 1.5rem + 2.2vw, 3.1rem); font-weight: 800; letter-spacing: -0.025em; }
+h2 { font-size: clamp(1.5rem, 1.25rem + 1vw, 2.1rem); }
+h3 { font-size: 1.2rem; }
+
+p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  margin: 0 0 1em;
+  padding-left: 1.3em;
+}
+
+a {
+  color: var(--c-primary);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  color: var(--c-primary-strong);
+}
+
+strong,
+b {
+  font-weight: 700;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+code {
+  padding: 0.1em 0.35em;
+  border-radius: var(--r-xs);
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-line);
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0.05em 0.4em;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--c-line-strong);
+  border-bottom-width: 2px;
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+  font-size: 0.78em;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.5;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--c-gold) 55%, transparent);
+  color: var(--c-ink);
+}
+
+/* ---------- Focus ---------- */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+/* ---------- Utilities ---------- */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.container--narrow {
+  max-width: calc(var(--container-narrow) + 2 * var(--gutter));
+}
+
+.muted {
+  color: var(--c-ink-3);
+  font-weight: 400;
+}
+
+.req {
+  color: var(--c-danger);
+  font-weight: 800;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--r-pill);
+  background: var(--c-ink);
+  color: var(--c-bg);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform var(--t-fast) var(--ease);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: none;
+  color: var(--c-bg);
+}
+
+/* ---------- Reading: relaxed spacing ---------- */
+:root[data-spacing="relaxed"] body {
+  letter-spacing: 0.03em;
+  word-spacing: 0.12em;
+  line-height: 1.85;
+}
+
+:root[data-spacing="relaxed"] p,
+:root[data-spacing="relaxed"] li {
+  max-width: 68ch;
+}
+
+/* ---------- High contrast extras ---------- */
+/* Plain text links (no component class) are always underlined in high contrast. */
+:root[data-contrast="high"] a:not([class]) {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+:root[data-contrast="high"] .card,
+:root[data-contrast="high"] .btn,
+:root[data-contrast="high"] .chip,
+:root[data-contrast="high"] .input,
+:root[data-contrast="high"] .select,
+:root[data-contrast="high"] .textarea,
+:root[data-contrast="high"] .sign-tile {
+  border-width: 2px;
+}
+
+/* ---------- Reduced motion ---------- */
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Before settings load (or if scripts fail), honor the system preference directly. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Page transitions (View Transitions API, progressive enhancement) ----------
+   The router sets data-vt: crossing into a world wipes in from that world's side
+   of the horizon; moving within a world cross-fades. */
+.site-header { view-transition-name: site-header; }
+.tabbar { view-transition-name: tabbar; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(root) { animation-name: vt-fade-out; }
+::view-transition-new(root) { animation-name: vt-fade-in; }
+
+:root[data-vt="to-learn"]::view-transition-new(root) { animation: vt-wipe-from-left 480ms var(--ease-out) both; }
+:root[data-vt="to-community"]::view-transition-new(root) { animation: vt-wipe-from-right 480ms var(--ease-out) both; }
+:root[data-vt="to-learn"]::view-transition-old(root),
+:root[data-vt="to-community"]::view-transition-old(root) { animation: vt-recede 480ms var(--ease-out) both; }
+
+/* Entering from the landing: the world has already opened across the screen, so its page simply settles in. */
+:root[data-vt="enter"]::view-transition-old(root) { animation: vt-fade-out 240ms linear both; }
+:root[data-vt="enter"]::view-transition-new(root) { animation: vt-fade-in 240ms var(--ease-out) both; }
+
+/* Tanaw's eye travels between the seam and the header's mark. */
+.seam-eye { view-transition-name: tanaw-eye; }
+body:not([data-view="home"]) .site-header .brand__mark { view-transition-name: tanaw-eye; }
+
+::view-transition-group(tanaw-eye) {
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-out);
+}
+
+@media (max-width: 859px) {
+  /* Stacked worlds: the eye is often off screen when you leave, so it does not fly in from nowhere. */
+  .seam-eye { view-transition-name: none; }
+  body:not([data-view="home"]) .site-header .brand__mark { view-transition-name: none; }
+}
+
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes vt-recede { to { opacity: 0.35; transform: scale(0.985); } }
+@keyframes vt-wipe-from-left { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes vt-wipe-from-right { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+
+:root[data-motion="reduce"]::view-transition-group(*),
+:root[data-motion="reduce"]::view-transition-old(*),
+:root[data-motion="reduce"]::view-transition-new(*) {
+  animation: none !important;
+}
+
+/* ---------- Reveal on scroll (fx.reveal) ----------
+   Content is hidden only after the script marks it .is-pending, so nothing can
+   stay invisible if the effect does not run. */
+:root[data-motion="full"] [data-reveal].is-pending {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 560ms var(--ease-out), transform 560ms var(--ease-out);
+  transition-delay: calc(var(--d, 0) * 70ms);
+}
+
+:root[data-motion="full"] [data-reveal].is-pending.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Printing: black on white, in every theme ----------
+   Browsers leave out background colors when printing, so a dark theme's pale text would
+   all but vanish on paper, and text painted with a gradient would vanish entirely. */
+@media print {
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  body::before,
+  .site-header,
+  .world-nav,
+  .tabbar,
+  .site-footer,
+  .skip-link,
+  .toasts,
+  .rail,
+  .horizon__veil,
+  .realm__scene,
+  .realm__nav,
+  .seam,
+  .beads,
+  .hub-hero__scene,
+  .nh-hero__sky,
+  .nh-hero__floor,
+  .portal__art,
+  .stage3d__hint,
+  .hand3d {
+    display: none !important;
+  }
+
+  :root { color-scheme: light !important; }
+  html, body { background: #FFFFFF !important; }
+  .console { display: block !important; }
+  .horizon__split { height: auto !important; }
+  a { text-decoration: underline; }
+  h1, h2, h3 { break-after: avoid; }
+  .card, .feature, .portal, .start-card, .phrase, li { break-inside: avoid; }
+}
+
+/* ---------- Shared keyframes ---------- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.94); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-coral) 55%, transparent); }
+  50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--c-coral) 0%, transparent); }
+}
+
+@keyframes float-up {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.9); }
+  15% { opacity: 1; transform: translate(-50%, -12px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -64px) scale(1); }
+}

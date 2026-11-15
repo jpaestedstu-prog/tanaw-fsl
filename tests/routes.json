@@ -1,0 +1,17 @@
+[
+  "#/", "#/learn", "#/learn/path", "#/learn/what-is-fsl", "#/learn/greetings", "#/learn/sign-parameters", "#/learn/fingerspelling", "#/learn/fsl-act", "#/learn/allyship",
+  "#/lab", "#/lab?tab=spell&text=Mabuhay", "#/lab?tab=shapes", "#/lab?tab=params", "#/lab?letter=J",
+  "#/play", "#/play/sightlines", "#/play/myth-fact", "#/play/word-lens", "#/play/rights-match", "#/play/timeline", "#/play/read-hand", "#/play/five-parts",
+  "#/scenes", "#/scenes/clinic", "#/scenes/emergency",
+  "#/library", "#/library?status=learned", "#/sign/thank-you", "#/sign/letter-a", "#/sign/letter-t",
+  "#/practice", "#/practice/mirror", "#/practice/mirror?sign=thank-you", "#/practice/mirror?sign=letter-l", "#/practice/review", "#/practice/review?deck=signs",
+  "#/practice/quiz", "#/practice/quiz?mode=concepts", "#/practice/quiz?mode=signs", "#/practice/fingerspell", "#/practice/fingerspell?text=Cebu",
+  "#/bridge", "#/bridge?tab=emergency",
+  "#/community", "#/community/identity", "#/community/stories",
+  "#/community/stories/first-school", "#/community/stories/pedro-santos", "#/community/stories/seventeen-leaders",
+  "#/community/stories/studying-fsl", "#/community/stories/fsl-act", "#/community/stories/on-screen", "#/community/stories/nope",
+  "#/community/history", "#/community/rights", "#/community/calendar", "#/community/connect",
+  "#/journey", "#/studio", "#/about",
+  "#/login", "#/register", "#/login?out=1", "#/account",
+  "#/culture", "#/culture?s=sources", "#/progress", "#/nope"
+]
