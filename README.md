@@ -17,6 +17,13 @@ Tanaw is a student project for the course *I.S. Innovation and New Technologies*
 
 ## 1. How to run it
 
+**On the web.** Tanaw is published with GitHub Pages from the `main` branch of <https://github.com/jpaestedstu-prog/tanaw-fsl>:
+
+- Tanaw: <https://jpaestedstu-prog.github.io/tanaw-fsl/>
+- The administrator console: <https://jpaestedstu-prog.github.io/tanaw-fsl/admin.html>
+
+A push to `main` updates the live site within a minute or two (raise `CACHE_VERSION` in `sw.js` first: see section 9). As everywhere else, accounts stay in each visitor's own browser, so the console lists the accounts made in that same browser, not other visitors'.
+
 **Option A — open the file.** Double-click `index.html` in a recent Chrome, Edge, Firefox or Safari. Everything works, including offline.
 
 **Option B — local server (recommended for demos).** Needed for installing as an app (PWA), and for the camera and storage in some browsers.
@@ -151,6 +158,7 @@ Every game works with a keyboard alone; gestures are shortcuts. No game tests FS
 
 ### November 2026
 
+- **Live on GitHub Pages** (15 November): the site and the console are online (section 1), served from the same files as this folder and tested again there.
 - **Both landings, in order.** The start page opens on the split-screen landing, with the 3D sign language landing right below it. Neither replaces the other.
 - **The split-screen landing is back, and more than it was.** It was removed in October when the landing was rebuilt around the 3D hand, a decision taken without being asked for. The original concept and identity are restored from the 24 October copy. New: the lean, the draggable eye, the scenes on the seam, sightlines that follow the pointer, the intro, the entering transition, and real capiz and banig materials.
 - **The 3D sign language landing is kept as it was designed** on 31 October, compared pixel by pixel with that copy. Its heading is now an `h2`, because the page has one `h1`, and the hand now waits until the visitor gets there, so the first landing stays quick.
@@ -193,6 +201,9 @@ Problems found and fixed in this round:
 | The people art kept animating while off screen, because the rule pausing it was overridden | It pauses, and plays when it comes into view |
 | On wide screens, a landing style removed the Learning hub lattice's perspective | The style applies only to the landing |
 | The `hand3d` and `stories` switches left links and pages behind when turned off | Both now turn their feature off completely |
+| Logging in, registering or setting up the first administrator while another tab was open (such as the public site beside the console) ended the new session at once: the person was logged out, and after first-time setup the console said "Something went wrong" | The account is saved before the session, so the other tab never sees a session whose account it cannot find. The account and console tests now do all three with another tab open |
+| On GitHub Pages, every site of one account shares one address and one set of caches, and Tanaw's offline update deleted every cache that was not its own | It deletes only Tanaw's old caches, and puts its own back if another site's update clears them |
+| In the Practice Mirror, if the camera had stopped sending a picture (unplugged, or taken by another app), Record failed silently with an error in the console | It says recording could not start, and to stop and start the camera |
 
 ### October 2026
 
@@ -307,6 +318,15 @@ Full results and how to re-run them: [`docs/testing.md`](docs/testing.md) and [`
 - All **6,112 focus rings** checked (27 pages in four themes, and the console's setup page and six sections in its four looks) have at least 3:1 contrast with the pixels around them.
 - **Offline:** the service worker caches all 98 entries on its list; never-visited pages (including the 3D Lab, a story and the account pages), a full reload, both landings and `admin.html` work with the network off, with all three fonts.
 - **Lighthouse (simulated phone, compressed hosting):** the start page, with both landings, scores 86 for performance, the 3D Hand Lab 87 (up from 64), and other pages 86–96. Accessibility and best practices are 100 on all nine pages measured, and SEO 100 on all but the console, which asks search engines not to list it. Layout shift is at most 0.006.
+
+**Again on the live site, 15 November 2026** (<https://jpaestedstu-prog.github.io/tanaw-fsl/>):
+
+- All 126 files in the repository are served exactly as they are in this folder.
+- **542 automated interaction checks** pass in Chrome: 76 of the landings, 89 of accounts, 148 of the console, 42 site-wide flows, 29 of this build's content, 62 of the 3D hand, Stories and search, and 96 of everything else. Of the 5 added since 2 November, four log in, register and set up the first administrator while another tab is open, and one presses Record after the camera has stopped.
+- No problems on 68 routes at six sizes; **0 axe-core violations** on 67 routes and in 35 temporary states (light theme, desktop size); the offline test passes, including `admin.html` and never-visited pages.
+- **The site and the console together:** an account registered on the site appears in the console's People list, and a notice and closed registration set in the console reach the site in another tab at once, with no errors or failed requests.
+- **Firefox and WebKit** (Safari's engine): every route, both landings, registration, login, and the console beside the site.
+- Tanaw and the account's other GitHub Pages site share one address; each keeps its own offline cache.
 
 **Not done:** testing with Deaf users and FSL learners, real screen-reader sessions, a real low-end Android phone on mobile data, and real Safari on a Mac or iPhone.
 
