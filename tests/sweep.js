@@ -101,6 +101,15 @@ const ok = (name, cond, detail = '') => { results.push(!!cond); console.log(`${c
     ok('mirror: Stop camera really stops it', await page.evaluate(() => window.__stream.getTracks().every((t) => t.readyState === 'ended') && document.querySelector('.cam').dataset.state === 'off'));
     await click('[data-cam-start]');
     await until(() => document.querySelector('.cam').dataset.state === 'live');
+    // The camera stops sending a picture (unplugged, or taken by another app): Record has to say so, not fail silently.
+    await page.evaluate(() => window.__stream.getTracks().forEach((t) => t.stop()));
+    const errorsBefore = errors.length;
+    await click('[data-rec]');
+    await wait(3600);
+    ok('mirror: if the camera has stopped, Record says recording could not start, with no page error', /could not start/.test(await lastToast()) && (await page.evaluate(() => document.querySelector('.cam__rec').hidden)) && errors.length === errorsBefore, await lastToast());
+    await click('[data-cam-stop]');
+    await click('[data-cam-start]');
+    await until(() => document.querySelector('.cam').dataset.state === 'live');
     await go('#/practice', 500);
     ok('mirror: leaving the page releases the camera', await page.evaluate(() => window.__stream.getTracks().every((t) => t.readyState === 'ended')));
     for (const [fail, words] of [['NotAllowedError', /blocked|allow/i], ['NotFoundError', /no camera|not found|connect/i], ['NotReadableError', /another|in use|busy|could not/i]]) {

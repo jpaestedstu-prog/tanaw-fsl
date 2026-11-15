@@ -314,7 +314,14 @@
           }
           recorder = null;
         };
-        recorder.start(250);
+        try {
+          recorder.start(250);
+        } catch (err) {
+          // For example when the camera has stopped sending a picture (unplugged, or taken by another app).
+          recorder = null;
+          T.ui.toast('Recording could not start. Press Stop camera, then Start camera, and try again.', { icon: 'alert', tone: 'danger' });
+          return;
+        }
         recStartedAt = Date.now();
         recBadge.hidden = false;
         recTime.textContent = '0:00';
