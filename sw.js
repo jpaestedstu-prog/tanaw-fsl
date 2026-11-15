@@ -4,8 +4,13 @@
    static hosting. Opening index.html directly from a folder works without it.
    Bump CACHE_VERSION whenever app files change. The shell list includes
    every view, so pages that load on demand also work offline.
+   On GitHub Pages, every site of one account shares one address
+   (https://<account>.github.io), and so shares one set of caches. This
+   worker removes only Tanaw's own old caches, and puts back whatever is
+   missing if another site's worker clears them.
    ========================================================================= */
-const CACHE_VERSION = 'tanaw-v4.1.0';
+const CACHE_PREFIX = 'tanaw-';
+const CACHE_VERSION = `${CACHE_PREFIX}v4.1.1`;
 
 const APP_SHELL = [
   './',
@@ -119,10 +124,20 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k))))
+      // Only Tanaw's own old caches: other sites on the same address keep theirs.
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith(CACHE_PREFIX) && k !== CACHE_VERSION).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
+
+/** Put back any app-shell file missing from the cache (another site on the same address may have cleared it). */
+function refillShell() {
+  return caches.open(CACHE_VERSION)
+    .then((cache) => Promise.all(APP_SHELL.map((u) => cache.match(u).then((hit) => (hit ? '' : u))))
+      .then((missing) => missing.filter(Boolean))
+      .then((missing) => (missing.length ? cache.addAll(missing) : undefined)))
+    .catch(() => undefined);
+}
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
@@ -131,6 +146,7 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   // Let the browser stream sign videos directly (range requests); cache only the app shell.
   if (url.pathname.includes('/assets/media/')) return;
+  if (request.mode === 'navigate') event.waitUntil(refillShell());
 
   event.respondWith(
     caches.match(request, { ignoreSearch: true }).then((cached) => {
