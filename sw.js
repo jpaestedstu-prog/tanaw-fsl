@@ -10,7 +10,7 @@
    missing if another site's worker clears them.
    ========================================================================= */
 const CACHE_PREFIX = 'tanaw-';
-const CACHE_VERSION = `${CACHE_PREFIX}v4.1.1`;
+const CACHE_VERSION = `${CACHE_PREFIX}v4.1.2`;
 
 const APP_SHELL = [
   './',

@@ -125,6 +125,11 @@
   const readSession = () => read(SESSION, null);
   const clearSession = () => drop(SESSION);
 
+  /**
+   * Gives the account a new session token and returns the function that stores the session.
+   * Call that function only after save(): another open tab checks a new session against the
+   * accounts it can see, and if the session arrived first it would take it for a stale one and end it.
+   */
   function startSession(u, remember) {
     const token = hex(bytes(16));
     const now = Date.now();
@@ -133,7 +138,7 @@
     u.failed = 0;
     u.locks = 0;
     u.lockedUntil = 0;
-    write(SESSION, { uid: u.id, token, issued: now, expires: now + (remember ? REMEMBER_MS : SESSION_MS), remember: !!remember });
+    return () => write(SESSION, { uid: u.id, token, issued: now, expires: now + (remember ? REMEMBER_MS : SESSION_MS), remember: !!remember });
   }
 
   /** The signed-in account behind the stored session, or null with the reason it ended. */
@@ -214,9 +219,10 @@
       const salt = newSalt();
       const u = makeUser({ name: input.name, email: input.email, role: 'learner' }, await derive(input.password, salt, ITERATIONS), salt);
       db.users.push(u);
-      startSession(u, input.remember);
+      const storeSession = startSession(u, input.remember);
       log('account.registered', { actor: u, target: u });
       save();
+      storeSession();
       return publicUser(u);
     },
 
@@ -231,9 +237,10 @@
       const salt = newSalt();
       const u = makeUser({ name: input.name, email: input.email, role: 'admin' }, await derive(input.password, salt, ITERATIONS), salt);
       db.users.push(u);
-      startSession(u, input.remember);
+      const storeSession = startSession(u, input.remember);
       log('admin.setup', { actor: u, target: u, note: 'first administrator on this device' });
       save();
+      storeSession();
       return publicUser(u);
     },
 
@@ -269,9 +276,10 @@
         save();
         throw new AuthError('This account is disabled. Ask an administrator on this device.');
       }
-      startSession(u, input.remember);
+      const storeSession = startSession(u, input.remember);
       log('login', { actor: u, target: u, note: input.remember ? 'kept logged in on this device' : '' });
       save();
+      storeSession();
       return publicUser(u);
     },
 

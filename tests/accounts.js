@@ -209,6 +209,16 @@ const PW = 'liwanag sa dagat 7';
   await logout();
   await wait(500);
   ok('tabs: logging out here logs out the other tab', await tab2.evaluate(() => !Tanaw.auth.user() && !document.querySelector('[data-account-toggle]')));
+  // With the other tab already open: it must not take the new session for a stale one and end it.
+  await login('ana@example.com');
+  await wait(1100);
+  ok('tabs: logging in while another tab is open keeps the session, in both tabs', (await val(() => !!Tanaw.auth.user())) && (await tab2.evaluate(() => !!Tanaw.auth.user())));
+  await logout();
+  await register('Lia Cruz', 'lia@example.com');
+  await wait(1100);
+  const lia = () => { const u = Tanaw.auth.user(); return !!u && u.email === 'lia@example.com'; };
+  ok('tabs: registering while another tab is open keeps the new account logged in, in both tabs', (await val(lia)) && (await tab2.evaluate(lia)));
+  await logout();
   await tab2.close();
 
   /* ---------- Each person's progress ---------- */

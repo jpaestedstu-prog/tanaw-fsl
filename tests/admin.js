@@ -401,6 +401,19 @@ const SECTIONS = ['overview', 'people', 'review', 'activity', 'site', 'system'];
   await wait(600);
   await other.close();
   ok('tabs: logging out in another tab closes the console here too', await val(() => !document.querySelector('.rail') && !!document.querySelector('[data-console-login]')));
+  // Logging in here while the public site is open in another tab: that tab must not end the new session.
+  const siteTab = await browser.newPage();
+  watch(siteTab);
+  await siteTab.goto(`${site}#/`, { waitUntil: 'load' });
+  await wait(400);
+  await page.bringToFront();
+  await fill('#c-email', 'admin@example.com');
+  await fill('#c-password', PW);
+  await submit('[data-console-login]', 1000);
+  await wait(600);
+  ok('tabs: logging in with the public site open in another tab keeps the console open, in both tabs', (await val(() => Tanaw.auth.isAdmin() && !!document.querySelector('.rail'))) && (await siteTab.evaluate(() => Tanaw.auth.isAdmin())));
+  await siteTab.close();
+  await val(() => Tanaw.auth.logout()); await wait(600);
 
   /* ---------- Starting again ---------- */
   await fill('#c-email', 'admin@example.com');
@@ -416,6 +429,21 @@ const SECTIONS = ['overview', 'people', 'review', 'activity', 'site', 'system'];
   await fill('#reset-word', 'DELETE');
   await submit('[data-reset]', 800);
   ok('reset: deletes everything and returns to first-time setup', await val(() => !localStorage.getItem('tanaw.accounts.v1') && !localStorage.getItem('tanaw.review.v1') && !localStorage.getItem('tanaw.session.v1') && !!document.querySelector('[data-console-setup]')));
+
+  // First-time setup with the public site open in another tab, as people usually work.
+  const siteTab2 = await browser.newPage();
+  watch(siteTab2);
+  await siteTab2.goto(`${site}#/`, { waitUntil: 'load' });
+  await wait(400);
+  await page.bringToFront();
+  await fill('#c-name', 'Maria Santos');
+  await fill('#c-email', 'admin@example.com');
+  await fill('#c-password', PW);
+  await fill('#c-confirm', PW);
+  await submit('[data-console-setup]');
+  await wait(600);
+  ok('tabs: first-time setup with the public site open in another tab opens the console and keeps it open', (await val(() => Tanaw.auth.isAdmin() && !!document.querySelector('.rail') && !/Something went wrong/.test(document.querySelector('h1').textContent))) && (await siteTab2.evaluate(() => Tanaw.auth.isAdmin())));
+  await siteTab2.close();
 
   ok('no page errors, warnings or failed loads during all of this', errors.length === 0, errors.slice(0, 5).join(' | '));
   await browser.close();
